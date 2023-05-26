@@ -136,14 +136,6 @@ func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	print("\(name): \(elapsed) \(unit)s")
 }
 var dummy = PP.zero
-let addBegin = DispatchTime.now().uptimeNanoseconds
-for i in 0 ... PP.max {
-	for j in 0 ... PP.max {
-		dummy ^= (GF(i) + GF(j)).value
-	}
-}
-let addEnd = DispatchTime.now().uptimeNanoseconds
-printElapsedTime("add", addBegin, addEnd)
 let mulBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
@@ -152,19 +144,9 @@ for i in 0 ... PP.max {
 }
 let mulEnd = DispatchTime.now().uptimeNanoseconds
 printElapsedTime("mul", mulBegin, mulEnd)
-let divBegin = DispatchTime.now().uptimeNanoseconds
-for i in 0 ... PP.max {
-	for j in 1 ... PP.max {
-		dummy ^= (GF(i) / GF(j)).value
-	}
-}
-let divEnd = DispatchTime.now().uptimeNanoseconds
-printElapsedTime("div", divBegin, divEnd)
 let rcpBegin = DispatchTime.now().uptimeNanoseconds
-for _ in 0 ... PP.max {
-	for j in 1 ... PP.max {
-		dummy ^= GF(j).rcp().value
-	}
+for j in 1 ... PP.max {
+	dummy ^= GF(j).rcp().value
 }
 let rcpEnd = DispatchTime.now().uptimeNanoseconds
 printElapsedTime("rcp", rcpBegin, rcpEnd)
