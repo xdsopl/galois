@@ -93,6 +93,22 @@ struct PrimitivePolynomial285: PrimitivePolynomial {
 	static let one = type(1)
 	static let max = type.max
 }
+struct PrimitivePolynomial69643: PrimitivePolynomial {
+	typealias type = UInt16
+	static let bits = 16
+	static let poly = type(Int(69643) & Int(type.max))
+	static let zero = type(0)
+	static let one = type(1)
+	static let max = type.max
+}
+struct PrimitivePolynomial4299161607: PrimitivePolynomial {
+	typealias type = UInt32
+	static let bits = 32
+	static let poly = type(Int(4299161607) & Int(type.max))
+	static let zero = type(0)
+	static let one = type(1)
+	static let max = type.max
+}
 typealias PP = PrimitivePolynomial285
 typealias GF = GaloisField<PP>
 let a = GF(2)
@@ -101,7 +117,8 @@ print("\(a) + \(b) = \(a + b)")
 print("\(a) * \(b) = \(a * b)")
 print("\(a) / \(b) = \(a / b)")
 print("rcp(\(a)) = \(a.rcp())")
-print("size of GF: \(MemoryLayout.size(ofValue: a)) byte")
+let size = MemoryLayout.size(ofValue: a)
+print("size of GF: \(size) byte\(size == 1 ? "" : "s")")
 var dummy = PP.zero
 let addBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
