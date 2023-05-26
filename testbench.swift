@@ -12,8 +12,8 @@ struct GF8: CustomStringConvertible {
 	static let poly = 285
 	static let size = 256
 	static let max = size - 1
-	static let (log, exp): ([type], [type]) = genLogExpTables()
-	static func genLogExpTables() -> ([type], [type]) {
+	static let (mul, inv): ([type], [type]) = genMulInvTables()
+	static func genMulInvTables() -> ([type], [type]) {
 		var log = [type](repeating: 0, count: size)
 		var exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
@@ -27,7 +27,23 @@ struct GF8: CustomStringConvertible {
 				a ^= poly
 			}
 		}
-		return (log, exp)
+		var mul = [type](repeating: 0, count: size * size)
+		for a in 0 ..< size {
+			for b in 0 ..< size {
+				if a == 0 || b == 0 {
+					mul[size * a + b] = type(0)
+				} else {
+					mul[size * a + b] = exp[(Int(log[a]) + Int(log[b])) % max]
+				}
+			}
+		}
+		var inv = [type](repeating: 0, count: size)
+		inv[0] = 0
+		inv[1] = 1
+		for a in 2 ..< size {
+			inv[a] = exp[max - Int(log[a])]
+		}
+		return (mul, inv)
 	}
 	static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
@@ -36,27 +52,18 @@ struct GF8: CustomStringConvertible {
 		left = left + right
 	}
 	static func *(left: Self, right: Self) -> Self {
-		if left.value == 0 || right.value == 0 {
-			return Self(0)
-		}
-		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
+		return Self(mul[size * Int(left.value) + Int(right.value)])
 	}
 	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
 	func rcp() -> Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
-		if value == 1 {
-			return self
-		}
-		return Self(Self.exp[Self.max - Int(Self.log[Int(value)])])
+		return Self(Self.inv[Int(value)])
 	}
 	static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
-		if left.value == 0 || right.value == 1 {
-			return left
-		}
-		return Self(Self.exp[(Int(Self.log[Int(left.value)]) - Int(Self.log[Int(right.value)]) + max) % max])
+		return left * right.rcp()
 	}
 	static func /=(left: inout Self, right: Self) {
 		left = left / right
