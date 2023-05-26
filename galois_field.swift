@@ -48,23 +48,13 @@ struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 		guard value != 0 else {
 			fatalError("Reciprocal of zero is undefined in Galois Field")
 		}
-#if true
 		if value == 1 {
 			return self
 		}
 		var newr = P.poly, r = value
 		var newt = P.zero, t = P.one
 		let degree: (P.type) -> Int = {
-#if true
 			return $0.bitWidth - 1 - $0.leadingZeroBitCount
-#else
-			var d = 0, a = $0 >> 1
-			while a != 0 {
-				d += 1
-				a >>= 1
-			}
-			return d
-#endif
 		}
 		var k = degree(r)
 		let j = P.bits - k
@@ -83,14 +73,6 @@ struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 			newt ^= t << j
 		}
 		return GaloisField<P>(newt)
-#else
-		var a = self * self, t = a
-		for _ in 0 ..< P.bits - 2 {
-			a *= a
-			t *= a
-		}
-		return t
-#endif
 	}
 	static func /(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
 		return left * right.rcp()
