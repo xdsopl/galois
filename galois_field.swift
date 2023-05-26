@@ -109,7 +109,7 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	static let one = type(1)
 	static let max = type.max
 }
-typealias PP = PrimitivePolynomial285
+typealias PP = PrimitivePolynomial69643
 typealias GF = GaloisField<PP>
 let a = GF(2)
 let b = GF(3)
