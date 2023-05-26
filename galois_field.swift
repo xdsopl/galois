@@ -4,19 +4,15 @@ Galois field arithmetic
 Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 */
 
+import Dispatch
+
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	static var bits: Int { get }
 	static var poly: type { get }
 	static var zero: type { get }
 	static var one: type { get }
-}
-struct PrimitivePolynomial285: PrimitivePolynomial {
-	typealias type = UInt8
-	static let bits = 8
-	static let poly = type(Int(285) & Int(type.max))
-	static let zero = type(0)
-	static let one = type(1)
+	static var max: type { get }
 }
 struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 	var value: P.type
@@ -109,12 +105,52 @@ struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 		return String(value)
 	}
 }
-typealias GF = GaloisField<PrimitivePolynomial285>
+struct PrimitivePolynomial285: PrimitivePolynomial {
+	typealias type = UInt8
+	static let bits = 8
+	static let poly = type(Int(285) & Int(type.max))
+	static let zero = type(0)
+	static let one = type(1)
+	static let max = type.max
+}
+typealias PP = PrimitivePolynomial285
+typealias GF = GaloisField<PP>
 let a = GF(2)
 let b = GF(3)
 print("\(a) + \(b) = \(a + b)")
 print("\(a) * \(b) = \(a * b)")
 print("\(a) / \(b) = \(a / b)")
 print("rcp(\(a)) = \(a.rcp())")
-print(MemoryLayout.size(ofValue: a))
+print("size of GF: \(MemoryLayout.size(ofValue: a)) byte")
+
+let timeA = DispatchTime.now()
+for i in 0 ... PP.max {
+	for j in 0 ... PP.max {
+		let _ = GF(i) + GF(j)
+	}
+}
+let timeB = DispatchTime.now()
+for i in 0 ... PP.max {
+	for j in 0 ... PP.max {
+		let _ = GF(i) * GF(j)
+	}
+}
+let timeC = DispatchTime.now()
+for i in 0 ... PP.max {
+	for j in 1 ... PP.max {
+		let _ = GF(i) / GF(j)
+	}
+}
+let timeD = DispatchTime.now()
+for _ in 0 ... PP.max {
+	for j in 1 ... PP.max {
+		let _ = GF(j).rcp()
+	}
+}
+let timeE = DispatchTime.now()
+print("add: \(Double(timeB.uptimeNanoseconds - timeA.uptimeNanoseconds) / 1_000_000_000.0) seconds")
+print("mul: \(Double(timeC.uptimeNanoseconds - timeB.uptimeNanoseconds) / 1_000_000_000.0) seconds")
+print("div: \(Double(timeD.uptimeNanoseconds - timeC.uptimeNanoseconds) / 1_000_000_000.0) seconds")
+print("rcp: \(Double(timeE.uptimeNanoseconds - timeD.uptimeNanoseconds) / 1_000_000_000.0) seconds")
+
 
