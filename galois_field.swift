@@ -123,34 +123,33 @@ print("\(a) / \(b) = \(a / b)")
 print("rcp(\(a)) = \(a.rcp())")
 print("size of GF: \(MemoryLayout.size(ofValue: a)) byte")
 
-let timeA = DispatchTime.now()
+let timeA = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
 		let _ = GF(i) + GF(j)
 	}
 }
-let timeB = DispatchTime.now()
+let timeB = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
 		let _ = GF(i) * GF(j)
 	}
 }
-let timeC = DispatchTime.now()
+let timeC = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 1 ... PP.max {
 		let _ = GF(i) / GF(j)
 	}
 }
-let timeD = DispatchTime.now()
+let timeD = DispatchTime.now().uptimeNanoseconds
 for _ in 0 ... PP.max {
 	for j in 1 ... PP.max {
 		let _ = GF(j).rcp()
 	}
 }
-let timeE = DispatchTime.now()
-print("add: \((timeB.uptimeNanoseconds - timeA.uptimeNanoseconds) / 1_000_000) ms")
-print("mul: \((timeC.uptimeNanoseconds - timeB.uptimeNanoseconds) / 1_000_000) ms")
-print("div: \((timeD.uptimeNanoseconds - timeC.uptimeNanoseconds) / 1_000_000) ms")
-print("rcp: \((timeE.uptimeNanoseconds - timeD.uptimeNanoseconds) / 1_000_000) ms")
-
+let timeE = DispatchTime.now().uptimeNanoseconds
+print("add: \((timeB - timeA) / 1_000_000) ms")
+print("mul: \((timeC - timeB) / 1_000_000) ms")
+print("div: \((timeD - timeC) / 1_000_000) ms")
+print("rcp: \((timeE - timeD) / 1_000_000) ms")
 
