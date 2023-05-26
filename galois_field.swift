@@ -121,7 +121,19 @@ let size = MemoryLayout.size(ofValue: a)
 print("size of GF: \(size) byte\(size == 1 ? "" : "s")")
 func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 {
-	print("\(name): \((end - begin) / 1_000_000) ms")
+	var elapsed = end - begin
+	var unit = "n"
+	if elapsed >= 100_000_000_000 {
+		unit = ""
+		elapsed /= 1_000_000_000
+	} else if elapsed >= 100_000_000 {
+		unit = "m"
+		elapsed /= 1_000_000
+	} else if elapsed >= 100_000 {
+		unit = "u"
+		elapsed /= 1_000
+	}
+	print("\(name): \(elapsed) \(unit)s")
 }
 var dummy = PP.zero
 let addBegin = DispatchTime.now().uptimeNanoseconds
