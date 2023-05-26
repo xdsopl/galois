@@ -6,6 +6,146 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Dispatch
 
+struct GF8: CustomStringConvertible {
+	var value: UInt8
+	static let poly = 285
+	static let log: [UInt8] = logTable()
+	static func logTable() -> [UInt8] {
+		var tmp = [UInt8](repeating: 0, count: 256)
+		tmp[0] = 255
+		var a = 1
+		for i in 0 ..< 255 {
+			tmp[a] = UInt8(i)
+			a <<= 1
+			if a & 256 != 0 {
+				a ^= poly
+			}
+		}
+		return tmp
+	}
+	static let exp: [UInt8] = expTable()
+	static func expTable() -> [UInt8] {
+		var tmp = [UInt8](repeating: 0, count: 256)
+		tmp[255] = 0
+		var a = 1
+		for i in 0 ..< 255 {
+			tmp[i] = UInt8(a)
+			a <<= 1
+			if a & 256 != 0 {
+				a ^= poly
+			}
+		}
+		return tmp
+	}
+	static func +(left: GF8, right: GF8) -> GF8 {
+		return GF8(left.value ^ right.value)
+	}
+	static func +=(left: inout GF8, right: GF8) {
+		left = left + right
+	}
+	static func *(left: GF8, right: GF8) -> GF8 {
+		if left.value == 0 || right.value == 0 {
+			return GF8(0)
+		}
+		return GF8(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % 255])
+	}
+	static func *=(left: inout GF8, right: GF8) {
+		left = left * right
+	}
+	func rcp() -> GF8 {
+		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
+		if value == 1 {
+			return self
+		}
+		return GF8(GF8.exp[(255 - Int(GF8.log[Int(value)])) % 255])
+	}
+	static func /(left: GF8, right: GF8) -> GF8 {
+		assert(right.value != 0, "Division by zero is undefined in Galois Field")
+		if left.value == 0 || right.value == 1 {
+			return left
+		}
+		return GF8(GF8.exp[(Int(GF8.log[Int(left.value)]) - Int(GF8.log[Int(right.value)]) + 255) % 255])
+	}
+	static func /=(left: inout GF8, right: GF8) {
+		left = left / right
+	}
+	init(_ value: UInt8) {
+		self.value = value
+	}
+	var description: String {
+		return String(value)
+	}
+}
+struct GF16: CustomStringConvertible {
+	var value: UInt16
+	static let poly = 69643
+	static let log: [UInt16] = logTable()
+	static func logTable() -> [UInt16] {
+		var tmp = [UInt16](repeating: 0, count: 65536)
+		tmp[0] = 65535
+		var a = 1
+		for i in 0 ..< 65535 {
+			tmp[a] = UInt16(i)
+			a <<= 1
+			if a & 65536 != 0 {
+				a ^= poly
+			}
+		}
+		return tmp
+	}
+	static let exp: [UInt16] = expTable()
+	static func expTable() -> [UInt16] {
+		var tmp = [UInt16](repeating: 0, count: 65536)
+		tmp[65535] = 0
+		var a = 1
+		for i in 0 ..< 65535 {
+			tmp[i] = UInt16(a)
+			a <<= 1
+			if a & 65536 != 0 {
+				a ^= poly
+			}
+		}
+		return tmp
+	}
+	static func +(left: GF16, right: GF16) -> GF16 {
+		return GF16(left.value ^ right.value)
+	}
+	static func +=(left: inout GF16, right: GF16) {
+		left = left + right
+	}
+	static func *(left: GF16, right: GF16) -> GF16 {
+		if left.value == 0 || right.value == 0 {
+			return GF16(0)
+		}
+		return GF16(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % 65535])
+	}
+	static func *=(left: inout GF16, right: GF16) {
+		left = left * right
+	}
+	func rcp() -> GF16 {
+		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
+		if value == 1 {
+			return self
+		}
+		return GF16(GF16.exp[(65535 - Int(GF16.log[Int(value)])) % 65535])
+	}
+	static func /(left: GF16, right: GF16) -> GF16 {
+		assert(right.value != 0, "Division by zero is undefined in Galois Field")
+		if left.value == 0 || right.value == 1 {
+			return left
+		}
+		return GF16(GF16.exp[(Int(GF16.log[Int(left.value)]) - Int(GF16.log[Int(right.value)]) + 65535) % 65535])
+	}
+	static func /=(left: inout GF16, right: GF16) {
+		left = left / right
+	}
+	init(_ value: UInt16) {
+		self.value = value
+	}
+	var description: String {
+		return String(value)
+	}
+}
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	static var bits: Int { get }
@@ -110,7 +250,10 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	static let max = type.max
 }
 typealias PP = PrimitivePolynomial69643
+//typealias PP = PrimitivePolynomial285
 typealias GF = GaloisField<PP>
+//typealias GF = GF8
+//typealias GF = GF16
 let a = GF(2)
 let b = GF(3)
 print("\(a) + \(b) = \(a + b)")
