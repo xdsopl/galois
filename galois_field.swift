@@ -11,9 +11,9 @@ protocol PrimitivePolynomial {
 	static var zero: type { get }
 	static var one: type { get }
 }
-struct PrimitivePolynomial29: PrimitivePolynomial {
+struct PrimitivePolynomial285: PrimitivePolynomial {
 	typealias type = UInt8
-	static let poly: type = 29
+	static let poly: type = type(Int(285) & Int(type.max))
 	static let bits: Int = 8
 	static let zero: type = 0
 	static let one: type = 1
@@ -109,7 +109,7 @@ struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 		return String(value)
 	}
 }
-typealias GF = GaloisField<PrimitivePolynomial29>
+typealias GF = GaloisField<PrimitivePolynomial285>
 let a = GF(2)
 let b = GF(3)
 print("\(a) + \(b) = \(a + b)")
