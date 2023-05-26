@@ -103,34 +103,37 @@ print("\(a) / \(b) = \(a / b)")
 print("rcp(\(a)) = \(a.rcp())")
 print("size of GF: \(MemoryLayout.size(ofValue: a)) byte")
 var dummy = PP.zero
-let timeA = DispatchTime.now().uptimeNanoseconds
+let addBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
 		dummy ^= (GF(i) + GF(j)).value
 	}
 }
-let timeB = DispatchTime.now().uptimeNanoseconds
+let addEnd = DispatchTime.now().uptimeNanoseconds
+print("add: \((addEnd - addBegin) / 1_000_000) ms")
+let mulBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
 		dummy ^= (GF(i) * GF(j)).value
 	}
 }
-let timeC = DispatchTime.now().uptimeNanoseconds
+let mulEnd = DispatchTime.now().uptimeNanoseconds
+print("mul: \((mulEnd - mulBegin) / 1_000_000) ms")
+let divBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 1 ... PP.max {
 		dummy ^= (GF(i) / GF(j)).value
 	}
 }
-let timeD = DispatchTime.now().uptimeNanoseconds
+let divEnd = DispatchTime.now().uptimeNanoseconds
+print("div: \((divEnd - divBegin) / 1_000_000) ms")
+let rcpBegin = DispatchTime.now().uptimeNanoseconds
 for _ in 0 ... PP.max {
 	for j in 1 ... PP.max {
 		dummy ^= GF(j).rcp().value
 	}
 }
-let timeE = DispatchTime.now().uptimeNanoseconds
+let rcpEnd = DispatchTime.now().uptimeNanoseconds
+print("rcp: \((rcpEnd - rcpBegin) / 1_000_000) ms")
 print("dummy: \(dummy)")
-print("add: \((timeB - timeA) / 1_000_000) ms")
-print("mul: \((timeC - timeB) / 1_000_000) ms")
-print("div: \((timeD - timeC) / 1_000_000) ms")
-print("rcp: \((timeE - timeD) / 1_000_000) ms")
 
