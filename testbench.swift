@@ -286,6 +286,14 @@ for i in 0 ... PP.max {
 }
 let mulEnd = DispatchTime.now().uptimeNanoseconds
 printElapsedTime("mul", mulBegin, mulEnd)
+let divBegin = DispatchTime.now().uptimeNanoseconds
+for i in 0 ... PP.max {
+	for j in 1 ... PP.max {
+		assert((GF(i) / GF(j)).value == (GFR(i) / GFR(j)).value)
+	}
+}
+let divEnd = DispatchTime.now().uptimeNanoseconds
+printElapsedTime("div", divBegin, divEnd)
 let rcpBegin = DispatchTime.now().uptimeNanoseconds
 for j in 1 ... PP.max {
 	assert(GF(j).rcp().value == GFR(j).rcp().value)
