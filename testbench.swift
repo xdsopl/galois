@@ -57,7 +57,7 @@ struct GF8: CustomStringConvertible {
 		if value == 1 {
 			return self
 		}
-		return GF8(GF8.exp[(255 - Int(GF8.log[Int(value)])) % 255])
+		return GF8(GF8.exp[255 - Int(GF8.log[Int(value)])])
 	}
 	static func /(left: GF8, right: GF8) -> GF8 {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
@@ -127,7 +127,7 @@ struct GF16: CustomStringConvertible {
 		if value == 1 {
 			return self
 		}
-		return GF16(GF16.exp[(65535 - Int(GF16.log[Int(value)])) % 65535])
+		return GF16(GF16.exp[65535 - Int(GF16.log[Int(value)])])
 	}
 	static func /(left: GF16, right: GF16) -> GF16 {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
