@@ -148,9 +148,9 @@ for _ in 0 ... PP.max {
 	}
 }
 let timeE = DispatchTime.now()
-print("add: \(Double(timeB.uptimeNanoseconds - timeA.uptimeNanoseconds) / 1_000_000_000.0) seconds")
-print("mul: \(Double(timeC.uptimeNanoseconds - timeB.uptimeNanoseconds) / 1_000_000_000.0) seconds")
-print("div: \(Double(timeD.uptimeNanoseconds - timeC.uptimeNanoseconds) / 1_000_000_000.0) seconds")
-print("rcp: \(Double(timeE.uptimeNanoseconds - timeD.uptimeNanoseconds) / 1_000_000_000.0) seconds")
+print("add: \((timeB.uptimeNanoseconds - timeA.uptimeNanoseconds) / 1_000_000) milliseconds")
+print("mul: \((timeC.uptimeNanoseconds - timeB.uptimeNanoseconds) / 1_000_000) milliseconds")
+print("div: \((timeD.uptimeNanoseconds - timeC.uptimeNanoseconds) / 1_000_000) milliseconds")
+print("rcp: \((timeE.uptimeNanoseconds - timeD.uptimeNanoseconds) / 1_000_000) milliseconds")
 
 
