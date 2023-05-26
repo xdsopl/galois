@@ -6,17 +6,17 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
-	static var poly: type { get }
 	static var bits: Int { get }
+	static var poly: type { get }
 	static var zero: type { get }
 	static var one: type { get }
 }
 struct PrimitivePolynomial285: PrimitivePolynomial {
 	typealias type = UInt8
-	static let poly: type = type(Int(285) & Int(type.max))
-	static let bits: Int = 8
-	static let zero: type = 0
-	static let one: type = 1
+	static let bits = 8
+	static let poly = type(Int(285) & Int(type.max))
+	static let zero = type(0)
+	static let one = type(1)
 }
 struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 	var value: P.type
