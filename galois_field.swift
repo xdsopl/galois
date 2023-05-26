@@ -45,9 +45,7 @@ struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 		left = left * right
 	}
 	func rcp() -> GaloisField<P> {
-		guard value != 0 else {
-			fatalError("Reciprocal of zero is undefined in Galois Field")
-		}
+		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
 			return self
 		}
