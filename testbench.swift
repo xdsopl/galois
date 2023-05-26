@@ -251,9 +251,9 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 }
 typealias PP = PrimitivePolynomial69643
 //typealias PP = PrimitivePolynomial285
-typealias GF = GaloisField<PP>
+typealias GFR = GaloisField<PP>
+typealias GF = GF16
 //typealias GF = GF8
-//typealias GF = GF16
 let a = GF(2)
 let b = GF(3)
 print("\(a) + \(b) = \(a + b)")
@@ -278,20 +278,18 @@ func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	}
 	print("\(name): \(elapsed) \(unit)s")
 }
-var dummy = PP.zero
 let mulBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
-		dummy ^= (GF(i) * GF(j)).value
+		assert((GF(i) * GF(j)).value == (GFR(i) * GFR(j)).value)
 	}
 }
 let mulEnd = DispatchTime.now().uptimeNanoseconds
 printElapsedTime("mul", mulBegin, mulEnd)
 let rcpBegin = DispatchTime.now().uptimeNanoseconds
 for j in 1 ... PP.max {
-	dummy ^= GF(j).rcp().value
+	assert(GF(j).rcp().value == GFR(j).rcp().value)
 }
 let rcpEnd = DispatchTime.now().uptimeNanoseconds
 printElapsedTime("rcp", rcpBegin, rcpEnd)
-print("dummy: \(dummy)")
 
