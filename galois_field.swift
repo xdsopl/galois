@@ -119,6 +119,10 @@ print("\(a) / \(b) = \(a / b)")
 print("rcp(\(a)) = \(a.rcp())")
 let size = MemoryLayout.size(ofValue: a)
 print("size of GF: \(size) byte\(size == 1 ? "" : "s")")
+func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
+{
+	print("\(name): \((end - begin) / 1_000_000) ms")
+}
 var dummy = PP.zero
 let addBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
@@ -127,7 +131,7 @@ for i in 0 ... PP.max {
 	}
 }
 let addEnd = DispatchTime.now().uptimeNanoseconds
-print("add: \((addEnd - addBegin) / 1_000_000) ms")
+printElapsedTime("add", addBegin, addEnd)
 let mulBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 0 ... PP.max {
@@ -135,7 +139,7 @@ for i in 0 ... PP.max {
 	}
 }
 let mulEnd = DispatchTime.now().uptimeNanoseconds
-print("mul: \((mulEnd - mulBegin) / 1_000_000) ms")
+printElapsedTime("mul", mulBegin, mulEnd)
 let divBegin = DispatchTime.now().uptimeNanoseconds
 for i in 0 ... PP.max {
 	for j in 1 ... PP.max {
@@ -143,7 +147,7 @@ for i in 0 ... PP.max {
 	}
 }
 let divEnd = DispatchTime.now().uptimeNanoseconds
-print("div: \((divEnd - divBegin) / 1_000_000) ms")
+printElapsedTime("div", divBegin, divEnd)
 let rcpBegin = DispatchTime.now().uptimeNanoseconds
 for _ in 0 ... PP.max {
 	for j in 1 ... PP.max {
@@ -151,6 +155,6 @@ for _ in 0 ... PP.max {
 	}
 }
 let rcpEnd = DispatchTime.now().uptimeNanoseconds
-print("rcp: \((rcpEnd - rcpBegin) / 1_000_000) ms")
+printElapsedTime("rcp", rcpBegin, rcpEnd)
 print("dummy: \(dummy)")
 
