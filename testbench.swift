@@ -7,20 +7,21 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 import Dispatch
 
 struct GF8: CustomStringConvertible {
-	var value: UInt8
+	typealias type = UInt8
+	var value: type
 	static let poly = 285
 	static let size = 256
 	static let max = size - 1
-	static let (log, exp): ([UInt8], [UInt8]) = genLogExpTables()
-	static func genLogExpTables() -> ([UInt8], [UInt8]) {
-		var log = [UInt8](repeating: 0, count: size)
-		var exp = [UInt8](repeating: 0, count: size)
-		log[0] = UInt8(max)
+	static let (log, exp): ([type], [type]) = genLogExpTables()
+	static func genLogExpTables() -> ([type], [type]) {
+		var log = [type](repeating: 0, count: size)
+		var exp = [type](repeating: 0, count: size)
+		log[0] = type(max)
 		exp[max] = 0
 		var a = 1
 		for i in 0 ..< max {
-			log[a] = UInt8(i)
-			exp[i] = UInt8(a)
+			log[a] = type(i)
+			exp[i] = type(a)
 			a <<= 1
 			if a & size != 0 {
 				a ^= poly
@@ -28,39 +29,39 @@ struct GF8: CustomStringConvertible {
 		}
 		return (log, exp)
 	}
-	static func +(left: GF8, right: GF8) -> GF8 {
-		return GF8(left.value ^ right.value)
+	static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
 	}
-	static func +=(left: inout GF8, right: GF8) {
+	static func +=(left: inout Self, right: Self) {
 		left = left + right
 	}
-	static func *(left: GF8, right: GF8) -> GF8 {
+	static func *(left: Self, right: Self) -> Self {
 		if left.value == 0 || right.value == 0 {
-			return GF8(0)
+			return Self(0)
 		}
-		return GF8(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
+		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
-	static func *=(left: inout GF8, right: GF8) {
+	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
-	func rcp() -> GF8 {
+	func rcp() -> Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
 			return self
 		}
-		return GF8(GF8.exp[GF8.max - Int(GF8.log[Int(value)])])
+		return Self(Self.exp[Self.max - Int(Self.log[Int(value)])])
 	}
-	static func /(left: GF8, right: GF8) -> GF8 {
+	static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		if left.value == 0 || right.value == 1 {
 			return left
 		}
-		return GF8(GF8.exp[(Int(GF8.log[Int(left.value)]) - Int(GF8.log[Int(right.value)]) + max) % max])
+		return Self(Self.exp[(Int(Self.log[Int(left.value)]) - Int(Self.log[Int(right.value)]) + max) % max])
 	}
-	static func /=(left: inout GF8, right: GF8) {
+	static func /=(left: inout Self, right: Self) {
 		left = left / right
 	}
-	init(_ value: UInt8) {
+	init(_ value: type) {
 		self.value = value
 	}
 	var description: String {
@@ -68,20 +69,21 @@ struct GF8: CustomStringConvertible {
 	}
 }
 struct GF16: CustomStringConvertible {
-	var value: UInt16
+	typealias type = UInt16
+	var value: type
 	static let poly = 69643
 	static let size = 65536
 	static let max = size - 1
-	static let (log, exp): ([UInt16], [UInt16]) = genLogExpTables()
-	static func genLogExpTables() -> ([UInt16], [UInt16]) {
-		var log = [UInt16](repeating: 0, count: size)
-		var exp = [UInt16](repeating: 0, count: size)
-		log[0] = UInt16(max)
+	static let (log, exp): ([type], [type]) = genLogExpTables()
+	static func genLogExpTables() -> ([type], [type]) {
+		var log = [type](repeating: 0, count: size)
+		var exp = [type](repeating: 0, count: size)
+		log[0] = type(max)
 		exp[max] = 0
 		var a = 1
 		for i in 0 ..< max {
-			log[a] = UInt16(i)
-			exp[i] = UInt16(a)
+			log[a] = type(i)
+			exp[i] = type(a)
 			a <<= 1
 			if a & size != 0 {
 				a ^= poly
@@ -89,39 +91,39 @@ struct GF16: CustomStringConvertible {
 		}
 		return (log, exp)
 	}
-	static func +(left: GF16, right: GF16) -> GF16 {
-		return GF16(left.value ^ right.value)
+	static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
 	}
-	static func +=(left: inout GF16, right: GF16) {
+	static func +=(left: inout Self, right: Self) {
 		left = left + right
 	}
-	static func *(left: GF16, right: GF16) -> GF16 {
+	static func *(left: Self, right: Self) -> Self {
 		if left.value == 0 || right.value == 0 {
-			return GF16(0)
+			return Self(0)
 		}
-		return GF16(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
+		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
-	static func *=(left: inout GF16, right: GF16) {
+	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
-	func rcp() -> GF16 {
+	func rcp() -> Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
 			return self
 		}
-		return GF16(GF16.exp[GF16.max - Int(GF16.log[Int(value)])])
+		return Self(Self.exp[Self.max - Int(Self.log[Int(value)])])
 	}
-	static func /(left: GF16, right: GF16) -> GF16 {
+	static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		if left.value == 0 || right.value == 1 {
 			return left
 		}
-		return GF16(GF16.exp[(Int(GF16.log[Int(left.value)]) - Int(GF16.log[Int(right.value)]) + max) % max])
+		return Self(Self.exp[(Int(Self.log[Int(left.value)]) - Int(Self.log[Int(right.value)]) + max) % max])
 	}
-	static func /=(left: inout GF16, right: GF16) {
+	static func /=(left: inout Self, right: Self) {
 		left = left / right
 	}
-	init(_ value: UInt16) {
+	init(_ value: type) {
 		self.value = value
 	}
 	var description: String {
