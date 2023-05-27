@@ -9,10 +9,10 @@ import Dispatch
 protocol GaloisFieldProtocol: Equatable {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	var value: type { get set }
-	static var poly: Int { get }
+	static var bits: Int { get }
 	static var size: Int { get }
 	static var max: Int { get }
-	static func generateTables()
+	static func generateTables(_ poly: Int)
 	static func +(left: Self, right: Self) -> Self
 	static func +=(left: inout Self, right: Self)
 	static func *(left: Self, right: Self) -> Self
@@ -26,23 +26,26 @@ protocol GaloisFieldProtocol: Equatable {
 struct GF8: GaloisFieldProtocol {
 	typealias type = UInt8
 	var value: type
-	static let poly = 285
-	static let size = 256
+	static let bits = 8
+	static let size = 1 << bits
 	static let max = size - 1
 	static var mul: [type] = []
 	static var inv: [type] = []
-	static func generateTables() {
+	static func generateTables(_ poly: Int) {
 		var log = [type](repeating: 0, count: size)
 		var exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
 		exp[max] = 0
-		var a = 1
+		var a = type(1)
+		let p = type(poly & Int(type.max))
 		for i in 0 ..< max {
-			log[a] = type(i)
+			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			a <<= 1
-			if a & size != 0 {
-				a ^= poly
+			if a >> (bits - 1) == 1 {
+				a <<= 1
+				a ^= p
+			} else {
+				a <<= 1
 			}
 		}
 		mul = [type](repeating: 0, count: size * size)
@@ -95,23 +98,26 @@ struct GF8: GaloisFieldProtocol {
 struct GF16: GaloisFieldProtocol {
 	typealias type = UInt16
 	var value: type
-	static let poly = 69643
-	static let size = 65536
+	static let bits = 16
+	static let size = 1 << bits
 	static let max = size - 1
 	static var log: [type] = []
 	static var exp: [type] = []
-	static func generateTables() {
+	static func generateTables(_ poly: Int) {
 		log = [type](repeating: 0, count: size)
 		exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
 		exp[max] = 0
-		var a = 1
+		var a = type(1)
+		let p = type(poly & Int(type.max))
 		for i in 0 ..< max {
-			log[a] = type(i)
+			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			a <<= 1
-			if a & size != 0 {
-				a ^= poly
+			if a >> (bits - 1) == 1 {
+				a <<= 1
+				a ^= p
+			} else {
+				a <<= 1
 			}
 		}
 	}
@@ -275,7 +281,7 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 struct Testbench<GF: GaloisFieldProtocol, PP: PrimitivePolynomial> {
 	typealias GFR = GaloisField<PP>
 	static func run() {
-		GF.generateTables()
+		GF.generateTables(Int(PP.poly))
 		func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 		{
 			var elapsed = end - begin
