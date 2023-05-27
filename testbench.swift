@@ -12,6 +12,7 @@ protocol GaloisFieldProtocol: Equatable {
 	static var poly: Int { get }
 	static var size: Int { get }
 	static var max: Int { get }
+	static func generateTables()
 	static func +(left: Self, right: Self) -> Self
 	static func +=(left: inout Self, right: Self)
 	static func *(left: Self, right: Self) -> Self
@@ -28,8 +29,9 @@ struct GF8: GaloisFieldProtocol {
 	static let poly = 285
 	static let size = 256
 	static let max = size - 1
-	static let (mul, inv): ([type], [type]) = genMulInvTables()
-	static func genMulInvTables() -> ([type], [type]) {
+	static var mul: [type] = []
+	static var inv: [type] = []
+	static func generateTables() {
 		var log = [type](repeating: 0, count: size)
 		var exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
@@ -43,7 +45,7 @@ struct GF8: GaloisFieldProtocol {
 				a ^= poly
 			}
 		}
-		var mul = [type](repeating: 0, count: size * size)
+		mul = [type](repeating: 0, count: size * size)
 		for a in 0 ..< size {
 			for b in 0 ..< size {
 				if a == 0 || b == 0 {
@@ -53,13 +55,12 @@ struct GF8: GaloisFieldProtocol {
 				}
 			}
 		}
-		var inv = [type](repeating: 0, count: size)
+		inv = [type](repeating: 0, count: size)
 		inv[0] = 0
 		inv[1] = 1
 		for a in 2 ..< size {
 			inv[a] = exp[max - Int(log[a])]
 		}
-		return (mul, inv)
 	}
 	static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
@@ -97,10 +98,11 @@ struct GF16: GaloisFieldProtocol {
 	static let poly = 69643
 	static let size = 65536
 	static let max = size - 1
-	static let (log, exp): ([type], [type]) = genLogExpTables()
-	static func genLogExpTables() -> ([type], [type]) {
-		var log = [type](repeating: 0, count: size)
-		var exp = [type](repeating: 0, count: size)
+	static var log: [type] = []
+	static var exp: [type] = []
+	static func generateTables() {
+		log = [type](repeating: 0, count: size)
+		exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
 		exp[max] = 0
 		var a = 1
@@ -112,7 +114,6 @@ struct GF16: GaloisFieldProtocol {
 				a ^= poly
 			}
 		}
-		return (log, exp)
 	}
 	static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
@@ -274,6 +275,7 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 struct Testbench<GF: GaloisFieldProtocol, PP: PrimitivePolynomial> {
 	typealias GFR = GaloisField<PP>
 	static func run() {
+		GF.generateTables()
 		func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 		{
 			var elapsed = end - begin
