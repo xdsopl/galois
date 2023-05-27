@@ -6,7 +6,23 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Dispatch
 
-struct GF8: Equatable {
+protocol GaloisFieldProtocol: Equatable {
+	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
+	var value: type { get set }
+	static var poly: Int { get }
+	static var size: Int { get }
+	static var max: Int { get }
+	static func +(left: Self, right: Self) -> Self
+	static func +=(left: inout Self, right: Self)
+	static func *(left: Self, right: Self) -> Self
+	static func *=(left: inout Self, right: Self)
+	static func /(left: Self, right: Self) -> Self
+	static func /=(left: inout Self, right: Self)
+	func rcp() -> Self
+	init(_ value: type)
+	init(_ value: Int)
+}
+struct GF8: GaloisFieldProtocol {
 	typealias type = UInt8
 	var value: type
 	static let poly = 285
@@ -71,8 +87,11 @@ struct GF8: Equatable {
 	init(_ value: type) {
 		self.value = value
 	}
+	init(_ value: Int) {
+		self.init(type(value))
+	}
 }
-struct GF16: Equatable {
+struct GF16: GaloisFieldProtocol {
 	typealias type = UInt16
 	var value: type
 	static let poly = 69643
@@ -129,6 +148,9 @@ struct GF16: Equatable {
 	}
 	init(_ value: type) {
 		self.value = value
+	}
+	init(_ value: Int) {
+		self.init(type(value))
 	}
 }
 protocol PrimitivePolynomial {
@@ -206,6 +228,9 @@ struct GaloisField<P: PrimitivePolynomial>: Equatable {
 	init(_ value: P.type) {
 		self.value = value
 	}
+	init(_ value: Int) {
+		self.init(P.type(value))
+	}
 }
 extension GF8: CustomStringConvertible {
 	var description: String {
@@ -246,56 +271,51 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	static let one = type(1)
 	static let max = type.max
 }
-typealias PP = PrimitivePolynomial69643
-//typealias PP = PrimitivePolynomial285
-typealias GFR = GaloisField<PP>
-typealias GF = GF16
-//typealias GF = GF8
-let a = GF(2)
-let b = GF(3)
-print("\(a) != \(b) = \(a != b)")
-print("\(a) + \(b) = \(a + b)")
-print("\(a) * \(b) = \(a * b)")
-print("\(a) / \(b) = \(a / b)")
-print("rcp(\(a)) = \(a.rcp())")
-let size = MemoryLayout.size(ofValue: a)
-print("size of GF: \(size) byte\(size == 1 ? "" : "s")")
-func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
-{
-	var elapsed = end - begin
-	var unit = "n"
-	if elapsed >= 100_000_000_000 {
-		unit = ""
-		elapsed /= 1_000_000_000
-	} else if elapsed >= 100_000_000 {
-		unit = "m"
-		elapsed /= 1_000_000
-	} else if elapsed >= 100_000 {
-		unit = "u"
-		elapsed /= 1_000
+struct Testbench<GF: GaloisFieldProtocol, PP: PrimitivePolynomial> {
+	typealias GFR = GaloisField<PP>
+	static func run() {
+		func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
+		{
+			var elapsed = end - begin
+			var unit = "n"
+			if elapsed >= 100_000_000_000 {
+				unit = ""
+				elapsed /= 1_000_000_000
+			} else if elapsed >= 100_000_000 {
+				unit = "m"
+				elapsed /= 1_000_000
+			} else if elapsed >= 100_000 {
+				unit = "u"
+				elapsed /= 1_000
+			}
+			print("\(name): \(elapsed) \(unit)s")
+		}
+		let mulBegin = DispatchTime.now().uptimeNanoseconds
+		for i in 0 ... Int(PP.max) {
+			for j in 0 ... Int(PP.max) {
+				assert((GF(i) * GF(j)).value == (GFR(i) * GFR(j)).value)
+			}
+		}
+		let mulEnd = DispatchTime.now().uptimeNanoseconds
+		printElapsedTime("mul", mulBegin, mulEnd)
+		let divBegin = DispatchTime.now().uptimeNanoseconds
+		for i in 0 ... Int(PP.max) {
+			for j in 1 ... Int(PP.max) {
+				assert((GF(i) / GF(j)).value == (GFR(i) / GFR(j)).value)
+			}
+		}
+		let divEnd = DispatchTime.now().uptimeNanoseconds
+		printElapsedTime("div", divBegin, divEnd)
+		let rcpBegin = DispatchTime.now().uptimeNanoseconds
+		for j in 1 ... Int(PP.max) {
+			assert(GF(j).rcp().value == GFR(j).rcp().value)
+		}
+		let rcpEnd = DispatchTime.now().uptimeNanoseconds
+		printElapsedTime("rcp", rcpBegin, rcpEnd)
 	}
-	print("\(name): \(elapsed) \(unit)s")
 }
-let mulBegin = DispatchTime.now().uptimeNanoseconds
-for i in 0 ... PP.max {
-	for j in 0 ... PP.max {
-		assert((GF(i) * GF(j)).value == (GFR(i) * GFR(j)).value)
-	}
-}
-let mulEnd = DispatchTime.now().uptimeNanoseconds
-printElapsedTime("mul", mulBegin, mulEnd)
-let divBegin = DispatchTime.now().uptimeNanoseconds
-for i in 0 ... PP.max {
-	for j in 1 ... PP.max {
-		assert((GF(i) / GF(j)).value == (GFR(i) / GFR(j)).value)
-	}
-}
-let divEnd = DispatchTime.now().uptimeNanoseconds
-printElapsedTime("div", divBegin, divEnd)
-let rcpBegin = DispatchTime.now().uptimeNanoseconds
-for j in 1 ... PP.max {
-	assert(GF(j).rcp().value == GFR(j).rcp().value)
-}
-let rcpEnd = DispatchTime.now().uptimeNanoseconds
-printElapsedTime("rcp", rcpBegin, rcpEnd)
+print("exhaustive test for GF8 (takes seconds to complete):")
+Testbench<GF8, PrimitivePolynomial285>.run()
+print("exhaustive test for GF16 (takes minutes to complete):")
+Testbench<GF16, PrimitivePolynomial69643>.run()
 
