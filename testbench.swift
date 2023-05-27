@@ -9,18 +9,20 @@ import Dispatch
 struct GF8: CustomStringConvertible {
 	var value: UInt8
 	static let poly = 285
-	static let (log, exp): ([UInt8], [UInt8]) = logExpTables()
-	static func logExpTables() -> ([UInt8], [UInt8]) {
-		var log = [UInt8](repeating: 0, count: 256)
-		var exp = [UInt8](repeating: 0, count: 256)
-		log[0] = 255
-		exp[255] = 0
+	static let size = 256
+	static let max = size - 1
+	static let (log, exp): ([UInt8], [UInt8]) = genLogExpTables()
+	static func genLogExpTables() -> ([UInt8], [UInt8]) {
+		var log = [UInt8](repeating: 0, count: size)
+		var exp = [UInt8](repeating: 0, count: size)
+		log[0] = UInt8(max)
+		exp[max] = 0
 		var a = 1
-		for i in 0 ..< 255 {
+		for i in 0 ..< max {
 			log[a] = UInt8(i)
 			exp[i] = UInt8(a)
 			a <<= 1
-			if a & 256 != 0 {
+			if a & size != 0 {
 				a ^= poly
 			}
 		}
@@ -36,7 +38,7 @@ struct GF8: CustomStringConvertible {
 		if left.value == 0 || right.value == 0 {
 			return GF8(0)
 		}
-		return GF8(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % 255])
+		return GF8(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
 	static func *=(left: inout GF8, right: GF8) {
 		left = left * right
@@ -46,14 +48,14 @@ struct GF8: CustomStringConvertible {
 		if value == 1 {
 			return self
 		}
-		return GF8(GF8.exp[255 - Int(GF8.log[Int(value)])])
+		return GF8(GF8.exp[GF8.max - Int(GF8.log[Int(value)])])
 	}
 	static func /(left: GF8, right: GF8) -> GF8 {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		if left.value == 0 || right.value == 1 {
 			return left
 		}
-		return GF8(GF8.exp[(Int(GF8.log[Int(left.value)]) - Int(GF8.log[Int(right.value)]) + 255) % 255])
+		return GF8(GF8.exp[(Int(GF8.log[Int(left.value)]) - Int(GF8.log[Int(right.value)]) + max) % max])
 	}
 	static func /=(left: inout GF8, right: GF8) {
 		left = left / right
@@ -68,18 +70,20 @@ struct GF8: CustomStringConvertible {
 struct GF16: CustomStringConvertible {
 	var value: UInt16
 	static let poly = 69643
-	static let (log, exp): ([UInt16], [UInt16]) = logExpTables()
-	static func logExpTables() -> ([UInt16], [UInt16]) {
-		var log = [UInt16](repeating: 0, count: 65536)
-		var exp = [UInt16](repeating: 0, count: 65536)
-		log[0] = 65535
-		exp[65535] = 0
+	static let size = 65536
+	static let max = size - 1
+	static let (log, exp): ([UInt16], [UInt16]) = genLogExpTables()
+	static func genLogExpTables() -> ([UInt16], [UInt16]) {
+		var log = [UInt16](repeating: 0, count: size)
+		var exp = [UInt16](repeating: 0, count: size)
+		log[0] = UInt16(max)
+		exp[max] = 0
 		var a = 1
-		for i in 0 ..< 65535 {
+		for i in 0 ..< max {
 			log[a] = UInt16(i)
 			exp[i] = UInt16(a)
 			a <<= 1
-			if a & 65536 != 0 {
+			if a & size != 0 {
 				a ^= poly
 			}
 		}
@@ -95,7 +99,7 @@ struct GF16: CustomStringConvertible {
 		if left.value == 0 || right.value == 0 {
 			return GF16(0)
 		}
-		return GF16(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % 65535])
+		return GF16(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
 	static func *=(left: inout GF16, right: GF16) {
 		left = left * right
@@ -105,14 +109,14 @@ struct GF16: CustomStringConvertible {
 		if value == 1 {
 			return self
 		}
-		return GF16(GF16.exp[65535 - Int(GF16.log[Int(value)])])
+		return GF16(GF16.exp[GF16.max - Int(GF16.log[Int(value)])])
 	}
 	static func /(left: GF16, right: GF16) -> GF16 {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		if left.value == 0 || right.value == 1 {
 			return left
 		}
-		return GF16(GF16.exp[(Int(GF16.log[Int(left.value)]) - Int(GF16.log[Int(right.value)]) + 65535) % 65535])
+		return GF16(GF16.exp[(Int(GF16.log[Int(left.value)]) - Int(GF16.log[Int(right.value)]) + max) % max])
 	}
 	static func /=(left: inout GF16, right: GF16) {
 		left = left / right
