@@ -9,33 +9,22 @@ import Dispatch
 struct GF8: CustomStringConvertible {
 	var value: UInt8
 	static let poly = 285
-	static let log: [UInt8] = logTable()
-	static func logTable() -> [UInt8] {
-		var tmp = [UInt8](repeating: 0, count: 256)
-		tmp[0] = 255
+	static let (log, exp): ([UInt8], [UInt8]) = logExpTables()
+	static func logExpTables() -> ([UInt8], [UInt8]) {
+		var log = [UInt8](repeating: 0, count: 256)
+		var exp = [UInt8](repeating: 0, count: 256)
+		log[0] = 255
+		exp[255] = 0
 		var a = 1
 		for i in 0 ..< 255 {
-			tmp[a] = UInt8(i)
+			log[a] = UInt8(i)
+			exp[i] = UInt8(a)
 			a <<= 1
 			if a & 256 != 0 {
 				a ^= poly
 			}
 		}
-		return tmp
-	}
-	static let exp: [UInt8] = expTable()
-	static func expTable() -> [UInt8] {
-		var tmp = [UInt8](repeating: 0, count: 256)
-		tmp[255] = 0
-		var a = 1
-		for i in 0 ..< 255 {
-			tmp[i] = UInt8(a)
-			a <<= 1
-			if a & 256 != 0 {
-				a ^= poly
-			}
-		}
-		return tmp
+		return (log, exp)
 	}
 	static func +(left: GF8, right: GF8) -> GF8 {
 		return GF8(left.value ^ right.value)
@@ -79,33 +68,22 @@ struct GF8: CustomStringConvertible {
 struct GF16: CustomStringConvertible {
 	var value: UInt16
 	static let poly = 69643
-	static let log: [UInt16] = logTable()
-	static func logTable() -> [UInt16] {
-		var tmp = [UInt16](repeating: 0, count: 65536)
-		tmp[0] = 65535
+	static let (log, exp): ([UInt16], [UInt16]) = logExpTables()
+	static func logExpTables() -> ([UInt16], [UInt16]) {
+		var log = [UInt16](repeating: 0, count: 65536)
+		var exp = [UInt16](repeating: 0, count: 65536)
+		log[0] = 65535
+		exp[65535] = 0
 		var a = 1
 		for i in 0 ..< 65535 {
-			tmp[a] = UInt16(i)
+			log[a] = UInt16(i)
+			exp[i] = UInt16(a)
 			a <<= 1
 			if a & 65536 != 0 {
 				a ^= poly
 			}
 		}
-		return tmp
-	}
-	static let exp: [UInt16] = expTable()
-	static func expTable() -> [UInt16] {
-		var tmp = [UInt16](repeating: 0, count: 65536)
-		tmp[65535] = 0
-		var a = 1
-		for i in 0 ..< 65535 {
-			tmp[i] = UInt16(a)
-			a <<= 1
-			if a & 65536 != 0 {
-				a ^= poly
-			}
-		}
-		return tmp
+		return (log, exp)
 	}
 	static func +(left: GF16, right: GF16) -> GF16 {
 		return GF16(left.value ^ right.value)
