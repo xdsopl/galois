@@ -280,24 +280,24 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 }
 struct Testbench<GF: GaloisFieldProtocol, PP: PrimitivePolynomial> {
 	typealias GFR = GaloisField<PP>
+	static func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
+	{
+		var elapsed = end - begin
+		var unit = "n"
+		if elapsed >= 100_000_000_000 {
+			unit = ""
+			elapsed /= 1_000_000_000
+		} else if elapsed >= 100_000_000 {
+			unit = "m"
+			elapsed /= 1_000_000
+		} else if elapsed >= 100_000 {
+			unit = "u"
+			elapsed /= 1_000
+		}
+		print("\(name): \(elapsed) \(unit)s")
+	}
 	static func run() {
 		GF.generateTables(Int(PP.poly))
-		func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
-		{
-			var elapsed = end - begin
-			var unit = "n"
-			if elapsed >= 100_000_000_000 {
-				unit = ""
-				elapsed /= 1_000_000_000
-			} else if elapsed >= 100_000_000 {
-				unit = "m"
-				elapsed /= 1_000_000
-			} else if elapsed >= 100_000 {
-				unit = "u"
-				elapsed /= 1_000
-			}
-			print("\(name): \(elapsed) \(unit)s")
-		}
 		let mulBegin = DispatchTime.now().uptimeNanoseconds
 		for i in 0 ... Int(PP.max) {
 			for j in 0 ... Int(PP.max) {
