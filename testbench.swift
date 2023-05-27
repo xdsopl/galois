@@ -6,7 +6,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Dispatch
 
-struct GF8 {
+struct GF8: Equatable {
 	typealias type = UInt8
 	var value: type
 	static let poly = 285
@@ -72,7 +72,7 @@ struct GF8 {
 		self.value = value
 	}
 }
-struct GF16 {
+struct GF16: Equatable {
 	typealias type = UInt16
 	var value: type
 	static let poly = 69643
@@ -139,7 +139,7 @@ protocol PrimitivePolynomial {
 	static var one: type { get }
 	static var max: type { get }
 }
-struct GaloisField<P: PrimitivePolynomial> {
+struct GaloisField<P: PrimitivePolynomial>: Equatable {
 	var value: P.type
 	static func +(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
 		return GaloisField<P>(left.value ^ right.value)
@@ -253,6 +253,7 @@ typealias GF = GF16
 //typealias GF = GF8
 let a = GF(2)
 let b = GF(3)
+print("\(a) != \(b) = \(a != b)")
 print("\(a) + \(b) = \(a + b)")
 print("\(a) * \(b) = \(a * b)")
 print("\(a) / \(b) = \(a / b)")
