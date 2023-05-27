@@ -6,7 +6,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Dispatch
 
-struct GF8: CustomStringConvertible {
+struct GF8 {
 	typealias type = UInt8
 	var value: type
 	static let poly = 285
@@ -71,11 +71,8 @@ struct GF8: CustomStringConvertible {
 	init(_ value: type) {
 		self.value = value
 	}
-	var description: String {
-		return String(value)
-	}
 }
-struct GF16: CustomStringConvertible {
+struct GF16 {
 	typealias type = UInt16
 	var value: type
 	static let poly = 69643
@@ -133,9 +130,6 @@ struct GF16: CustomStringConvertible {
 	init(_ value: type) {
 		self.value = value
 	}
-	var description: String {
-		return String(value)
-	}
 }
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
@@ -145,7 +139,7 @@ protocol PrimitivePolynomial {
 	static var one: type { get }
 	static var max: type { get }
 }
-struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
+struct GaloisField<P: PrimitivePolynomial> {
 	var value: P.type
 	static func +(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
 		return GaloisField<P>(left.value ^ right.value)
@@ -212,6 +206,18 @@ struct GaloisField<P: PrimitivePolynomial>: CustomStringConvertible {
 	init(_ value: P.type) {
 		self.value = value
 	}
+}
+extension GF8: CustomStringConvertible {
+	var description: String {
+		return String(value)
+	}
+}
+extension GF16: CustomStringConvertible {
+	var description: String {
+		return String(value)
+	}
+}
+extension GaloisField: CustomStringConvertible {
 	var description: String {
 		return String(value)
 	}
