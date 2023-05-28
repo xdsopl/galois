@@ -178,14 +178,14 @@ protocol PrimitivePolynomial {
 }
 struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 	typealias type = P.type
-	var value: P.type
-	static func +(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
-		return GaloisField<P>(left.value ^ right.value)
+	var value: type
+	static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
 	}
-	static func +=(left: inout GaloisField<P>, right: GaloisField<P>) {
+	static func +=(left: inout Self, right: Self) {
 		left = left + right
 	}
-	static func *(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
+	static func *(left: Self, right: Self) -> Self {
 		var a = left.value, b = right.value, t = P.zero
 		if a < b {
 			swap(&a, &b)
@@ -202,19 +202,19 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 			}
 			b >>= 1
 		}
-		return GaloisField<P>(t)
+		return Self(t)
 	}
-	static func *=(left: inout GaloisField<P>, right: GaloisField<P>) {
+	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
-	func rcp() -> GaloisField<P> {
+	func rcp() -> Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
 			return self
 		}
 		var newr = P.poly, r = value
 		var newt = P.zero, t = P.one
-		let degree: (P.type) -> Int = {
+		let degree: (type) -> Int = {
 			return $0.bitWidth - 1 - $0.leadingZeroBitCount
 		}
 		var k = degree(r)
@@ -233,19 +233,19 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 			newr ^= r << j
 			newt ^= t << j
 		}
-		return GaloisField<P>(newt)
+		return Self(newt)
 	}
-	static func /(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
+	static func /(left: Self, right: Self) -> Self {
 		return left * right.rcp()
 	}
-	static func /=(left: inout GaloisField<P>, right: GaloisField<P>) {
+	static func /=(left: inout Self, right: Self) {
 		left = left / right
 	}
-	init(_ value: P.type) {
+	init(_ value: type) {
 		self.value = value
 	}
 	init(_ value: Int) {
-		self.init(P.type(value))
+		self.init(type(value))
 	}
 }
 extension GF8: CustomStringConvertible {
