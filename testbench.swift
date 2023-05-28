@@ -26,8 +26,7 @@ protocol TableGeneratable {
 struct GF8: GaloisFieldProtocol, TableGeneratable {
 	typealias type = UInt8
 	var value: type
-	static var size = 0
-	static var mul: [type] = []
+	static var mul: [[type]] = []
 	static var inv: [type] = []
 	static func generateTables(_ poly: Int) {
 		var deg = -1
@@ -36,7 +35,7 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 			tmp >>= 1
 			deg += 1
 		}
-		size = 1 << deg
+		let size = 1 << deg
 		let max = size - 1
 		var log = [type](repeating: 0, count: size)
 		var exp = [type](repeating: 0, count: size)
@@ -54,13 +53,13 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 				a <<= 1
 			}
 		}
-		mul = [type](repeating: 0, count: size * size)
+		mul = [[type]](repeating: [type](repeating: 0, count: size), count: size)
 		for a in 0 ..< size {
 			for b in 0 ..< size {
 				if a == 0 || b == 0 {
-					mul[size * a + b] = type(0)
+					mul[a][b] = type(0)
 				} else {
-					mul[size * a + b] = exp[(Int(log[a]) + Int(log[b])) % max]
+					mul[a][b] = exp[(Int(log[a]) + Int(log[b])) % max]
 				}
 			}
 		}
@@ -82,7 +81,7 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 		left = left + right
 	}
 	static func *(left: Self, right: Self) -> Self {
-		return Self(mul[size * Int(left.value) + Int(right.value)])
+		return Self(mul[Int(left.value)][Int(right.value)])
 	}
 	static func *=(left: inout Self, right: Self) {
 		left = left * right
