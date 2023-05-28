@@ -35,7 +35,8 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 			tmp >>= 1
 			deg += 1
 		}
-		let size = 1 << deg
+		let bits = deg
+		let size = 1 << bits
 		let max = size - 1
 		var log = [type](repeating: 0, count: size)
 		var exp = [type](repeating: 0, count: size)
@@ -46,7 +47,7 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 		for i in 0 ..< max {
 			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			if a >> (deg - 1) == 1 {
+			if a >> (bits - 1) == 1 {
 				a <<= 1
 				a ^= p
 			} else {
@@ -117,7 +118,8 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 			tmp >>= 1
 			deg += 1
 		}
-		let size = 1 << deg
+		let bits = deg
+		let size = 1 << bits
 		max = size - 1
 		log = [type](repeating: 0, count: size)
 		exp = [type](repeating: 0, count: size)
@@ -128,7 +130,7 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 		for i in 0 ..< max {
 			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			if a >> (deg - 1) == 1 {
+			if a >> (bits - 1) == 1 {
 				a <<= 1
 				a ^= p
 			} else {
