@@ -9,10 +9,6 @@ import Dispatch
 protocol GaloisFieldProtocol: Equatable {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	var value: type { get set }
-	static var bits: Int { get }
-	static var size: Int { get }
-	static var max: Int { get }
-	static func generateTables(_ poly: Int)
 	static func +(left: Self, right: Self) -> Self
 	static func +=(left: inout Self, right: Self)
 	static func *(left: Self, right: Self) -> Self
@@ -23,7 +19,11 @@ protocol GaloisFieldProtocol: Equatable {
 	init(_ value: type)
 	init(_ value: Int)
 }
-struct GF8: GaloisFieldProtocol {
+protocol TableGeneratable {
+	static func generateTables(_ poly: Int)
+	static func destroyTables()
+}
+struct GF8: GaloisFieldProtocol, TableGeneratable {
 	typealias type = UInt8
 	var value: type
 	static let bits = 8
@@ -65,6 +65,10 @@ struct GF8: GaloisFieldProtocol {
 			inv[a] = exp[max - Int(log[a])]
 		}
 	}
+	static func destroyTables() {
+		mul = []
+		inv = []
+	}
 	static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
 	}
@@ -95,7 +99,7 @@ struct GF8: GaloisFieldProtocol {
 		self.init(type(value))
 	}
 }
-struct GF16: GaloisFieldProtocol {
+struct GF16: GaloisFieldProtocol, TableGeneratable {
 	typealias type = UInt16
 	var value: type
 	static let bits = 16
@@ -120,6 +124,10 @@ struct GF16: GaloisFieldProtocol {
 				a <<= 1
 			}
 		}
+	}
+	static func destroyTables() {
+		log = []
+		exp = []
 	}
 	static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
@@ -168,7 +176,8 @@ protocol PrimitivePolynomial {
 	static var one: type { get }
 	static var max: type { get }
 }
-struct GaloisField<P: PrimitivePolynomial>: Equatable {
+struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
+	typealias type = P.type
 	var value: P.type
 	static func +(left: GaloisField<P>, right: GaloisField<P>) -> GaloisField<P> {
 		return GaloisField<P>(left.value ^ right.value)
@@ -278,7 +287,7 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	static let one = type(1)
 	static let max = type.max
 }
-struct Testbench<GF: GaloisFieldProtocol, PP: PrimitivePolynomial> {
+struct Testbench<GF: GaloisFieldProtocol & TableGeneratable, PP: PrimitivePolynomial> {
 	typealias GFR = GaloisField<PP>
 	static func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	{
@@ -320,6 +329,7 @@ struct Testbench<GF: GaloisFieldProtocol, PP: PrimitivePolynomial> {
 		}
 		let rcpEnd = DispatchTime.now().uptimeNanoseconds
 		printElapsedTime("rcp", rcpBegin, rcpEnd)
+		GF.destroyTables()
 	}
 }
 print("exhaustive test for GF8 (takes seconds to complete):")
