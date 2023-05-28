@@ -171,7 +171,7 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	static var bits: Int { get }
-	static var poly: type { get }
+	static var poly: Int { get }
 	static var zero: type { get }
 	static var one: type { get }
 	static var max: type { get }
@@ -187,6 +187,7 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 	}
 	static func *(left: Self, right: Self) -> Self {
 		var a = left.value, b = right.value, t = P.zero
+		let p = type(P.poly & Int(type.max))
 		if a < b {
 			swap(&a, &b)
 		}
@@ -196,7 +197,7 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 			}
 			if a >> (P.bits - 1) == 1 {
 				a <<= 1
-				a ^= P.poly
+				a ^= p
 			} else {
 				a <<= 1
 			}
@@ -212,7 +213,8 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 		if value == 1 {
 			return self
 		}
-		var newr = P.poly, r = value
+		let poly = type(P.poly & Int(type.max))
+		var newr = poly, r = value
 		var newt = P.zero, t = P.one
 		let degree: (type) -> Int = {
 			return $0.bitWidth - 1 - $0.leadingZeroBitCount
@@ -266,7 +268,7 @@ extension GaloisField: CustomStringConvertible {
 struct PrimitivePolynomial285: PrimitivePolynomial {
 	typealias type = UInt8
 	static let bits = 8
-	static let poly = type(Int(285) & Int(type.max))
+	static let poly = 285
 	static let zero = type(0)
 	static let one = type(1)
 	static let max = type.max
@@ -274,7 +276,7 @@ struct PrimitivePolynomial285: PrimitivePolynomial {
 struct PrimitivePolynomial69643: PrimitivePolynomial {
 	typealias type = UInt16
 	static let bits = 16
-	static let poly = type(Int(69643) & Int(type.max))
+	static let poly = 69643
 	static let zero = type(0)
 	static let one = type(1)
 	static let max = type.max
@@ -282,7 +284,7 @@ struct PrimitivePolynomial69643: PrimitivePolynomial {
 struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	typealias type = UInt32
 	static let bits = 32
-	static let poly = type(Int(4299161607) & Int(type.max))
+	static let poly = 4299161607
 	static let zero = type(0)
 	static let one = type(1)
 	static let max = type.max
