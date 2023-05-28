@@ -107,12 +107,18 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 struct GF16: GaloisFieldProtocol, TableGeneratable {
 	typealias type = UInt16
 	var value: type
-	static let bits = 16
-	static let size = 1 << bits
-	static let max = size - 1
+	static var max = 1
 	static var log: [type] = []
 	static var exp: [type] = []
 	static func generateTables(_ poly: Int) {
+		var deg = -1
+		var tmp = poly
+		while tmp != 0 {
+			tmp >>= 1
+			deg += 1
+		}
+		let size = 1 << deg
+		max = size - 1
 		log = [type](repeating: 0, count: size)
 		exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
@@ -122,7 +128,7 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 		for i in 0 ..< max {
 			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			if a >> (bits - 1) == 1 {
+			if a >> (deg - 1) == 1 {
 				a <<= 1
 				a ^= p
 			} else {
@@ -286,6 +292,14 @@ struct PrimitivePolynomial285: PrimitivePolynomial {
 	static let one = type(1)
 	static let max = type.max
 }
+struct PrimitivePolynomial16427: PrimitivePolynomial {
+	typealias type = UInt16
+	static let bits = 14
+	static let poly = 16427
+	static let zero = type(0)
+	static let one = type(1)
+	static let max = type(16383)
+}
 struct PrimitivePolynomial69643: PrimitivePolynomial {
 	typealias type = UInt16
 	static let bits = 16
@@ -351,6 +365,8 @@ print("exhaustive test for GF(2^4):")
 Testbench<GF8, PrimitivePolynomial19>.run()
 print("exhaustive test for GF(2^8):")
 Testbench<GF8, PrimitivePolynomial285>.run()
+print("exhaustive test for GF(2^14) (takes a minute to complete):")
+Testbench<GF16, PrimitivePolynomial16427>.run()
 print("exhaustive test for GF(2^16) (be patient, takes minutes to complete):")
 Testbench<GF16, PrimitivePolynomial69643>.run()
 
