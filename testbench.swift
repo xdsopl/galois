@@ -29,13 +29,15 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 	static var mul: [[type]] = []
 	static var inv: [type] = []
 	static func generateTables(_ poly: Int) {
-		var deg = -1
-		var tmp = poly
-		while tmp != 0 {
-			tmp >>= 1
-			deg += 1
-		}
-		let bits = deg
+		let bits = {
+			var deg = -1
+			var tmp = $0
+			while tmp != 0 {
+				tmp >>= 1
+				deg += 1
+			}
+			return deg
+		}(poly)
 		let size = 1 << bits
 		let max = size - 1
 		var log = [type](repeating: 0, count: size)
@@ -112,13 +114,15 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 	static var log: [type] = []
 	static var exp: [type] = []
 	static func generateTables(_ poly: Int) {
-		var deg = -1
-		var tmp = poly
-		while tmp != 0 {
-			tmp >>= 1
-			deg += 1
-		}
-		let bits = deg
+		let bits = {
+			var deg = -1
+			var tmp = $0
+			while tmp != 0 {
+				tmp >>= 1
+				deg += 1
+			}
+			return deg
+		}(poly)
 		let size = 1 << bits
 		max = size - 1
 		log = [type](repeating: 0, count: size)
