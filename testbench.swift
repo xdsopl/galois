@@ -19,6 +19,20 @@ protocol GaloisFieldProtocol: Equatable {
 	init(_ value: type)
 	init(_ value: Int)
 }
+extension GaloisFieldProtocol {
+	static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
+	}
+	static func +=(left: inout Self, right: Self) {
+		left = left + right
+	}
+	var description: String {
+		return String(value)
+	}
+	init(_ value: Int) {
+		self.init(type(value))
+	}
+}
 protocol TableGeneratable {
 	static func generateTables(_ poly: Int)
 	static func destroyTables()
@@ -77,12 +91,6 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 		mul = []
 		inv = []
 	}
-	static func +(left: Self, right: Self) -> Self {
-		return Self(left.value ^ right.value)
-	}
-	static func +=(left: inout Self, right: Self) {
-		left = left + right
-	}
 	static func *(left: Self, right: Self) -> Self {
 		return Self(mul[Int(left.value)][Int(right.value)])
 	}
@@ -102,9 +110,6 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 	}
 	init(_ value: type) {
 		self.value = value
-	}
-	init(_ value: Int) {
-		self.init(type(value))
 	}
 }
 struct GF16: GaloisFieldProtocol, TableGeneratable {
@@ -146,12 +151,6 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 		log = []
 		exp = []
 	}
-	static func +(left: Self, right: Self) -> Self {
-		return Self(left.value ^ right.value)
-	}
-	static func +=(left: inout Self, right: Self) {
-		left = left + right
-	}
 	static func *(left: Self, right: Self) -> Self {
 		if left.value == 0 || right.value == 0 {
 			return Self(0)
@@ -181,9 +180,6 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 	init(_ value: type) {
 		self.value = value
 	}
-	init(_ value: Int) {
-		self.init(type(value))
-	}
 }
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
@@ -196,12 +192,6 @@ protocol PrimitivePolynomial {
 struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 	typealias type = P.type
 	var value: type
-	static func +(left: Self, right: Self) -> Self {
-		return Self(left.value ^ right.value)
-	}
-	static func +=(left: inout Self, right: Self) {
-		left = left + right
-	}
 	static func *(left: Self, right: Self) -> Self {
 		var a = left.value, b = right.value, t = P.zero
 		let p = type(P.poly & Int(type.max))
@@ -262,24 +252,6 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 	}
 	init(_ value: type) {
 		self.value = value
-	}
-	init(_ value: Int) {
-		self.init(type(value))
-	}
-}
-extension GF8: CustomStringConvertible {
-	var description: String {
-		return String(value)
-	}
-}
-extension GF16: CustomStringConvertible {
-	var description: String {
-		return String(value)
-	}
-}
-extension GaloisField: CustomStringConvertible {
-	var description: String {
-		return String(value)
 	}
 }
 struct PrimitivePolynomial19: PrimitivePolynomial {
