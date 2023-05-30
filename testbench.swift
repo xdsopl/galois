@@ -6,7 +6,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Dispatch
 
-protocol GaloisFieldProtocol: AdditiveArithmetic {
+protocol GaloisField: AdditiveArithmetic {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	var value: type { get set }
 	static func *(left: Self, right: Self) -> Self
@@ -17,7 +17,7 @@ protocol GaloisFieldProtocol: AdditiveArithmetic {
 	init(_ value: type)
 	init(_ value: Int)
 }
-extension GaloisFieldProtocol {
+extension GaloisField {
 	static var zero: Self {
 		return Self(0)
 	}
@@ -41,7 +41,7 @@ protocol TableGeneratable {
 	static func generateTables(_ poly: Int)
 	static func destroyTables()
 }
-struct GF8: GaloisFieldProtocol, TableGeneratable {
+struct GF8: GaloisField, TableGeneratable {
 	typealias type = UInt8
 	var value: type
 	static var mul: [[type]] = []
@@ -108,7 +108,7 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 		self.value = value
 	}
 }
-struct GF16: GaloisFieldProtocol, TableGeneratable {
+struct GF16: GaloisField, TableGeneratable {
 	typealias type = UInt16
 	var value: type
 	static var max = 1
@@ -177,7 +177,7 @@ protocol PrimitivePolynomial {
 	static var one: type { get }
 	static var max: type { get }
 }
-struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
+struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 	typealias type = P.type
 	var value: type
 	static func *(left: Self, right: Self) -> Self {
@@ -279,8 +279,8 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	static let one = type(1)
 	static let max = type.max
 }
-struct Testbench<GF: GaloisFieldProtocol & TableGeneratable, PP: PrimitivePolynomial> {
-	typealias GFR = GaloisField<PP>
+struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
+	typealias GFR = GaloisFieldReference<PP>
 	static func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	{
 		var elapsed = end - begin
