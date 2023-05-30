@@ -58,6 +58,7 @@ struct GF8: GaloisField, TableGeneratable {
 	}
 	static func generateTables(_ poly: Int) {
 		let d = degree(poly)
+		assert(d <= 8)
 		let size = 1 << d
 		let max = size - 1
 		var log = [type](repeating: 0, count: size)
@@ -123,6 +124,7 @@ struct GF16: GaloisField, TableGeneratable {
 	}
 	static func generateTables(_ poly: Int) {
 		let d = degree(poly)
+		assert(d <= 16)
 		let size = 1 << d
 		max = size - 1
 		log = [type](repeating: 0, count: size)
