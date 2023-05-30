@@ -237,28 +237,7 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		self.value = value
 	}
 }
-struct PrimitivePolynomial19: PrimitivePolynomial {
-	typealias type = UInt8
-	static let poly = 19
-}
-struct PrimitivePolynomial285: PrimitivePolynomial {
-	typealias type = UInt8
-	static let poly = 285
-}
-struct PrimitivePolynomial16427: PrimitivePolynomial {
-	typealias type = UInt16
-	static let poly = 16427
-}
-struct PrimitivePolynomial69643: PrimitivePolynomial {
-	typealias type = UInt16
-	static let poly = 69643
-}
-struct PrimitivePolynomial4299161607: PrimitivePolynomial {
-	typealias type = UInt32
-	static let poly = 4299161607
-}
-struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
-	typealias GFR = GaloisFieldReference<PP>
+struct Testbench<GF: GaloisField & TableGeneratable, GFR: GaloisField> {
 	static func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	{
 		var elapsed = end - begin
@@ -276,7 +255,6 @@ struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
 		print("\(name): \(elapsed) \(unit)s")
 	}
 	static func run() {
-		GF.generateTables(PP.poly)
 		assert(GF.count == GFR.count)
 		let size = GF.count
 		let mulBegin = DispatchTime.now().uptimeNanoseconds
@@ -301,15 +279,40 @@ struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
 		}
 		let rcpEnd = DispatchTime.now().uptimeNanoseconds
 		printElapsedTime("rcp", rcpBegin, rcpEnd)
-		GF.destroyTables()
 	}
 }
+struct PrimitivePolynomial19: PrimitivePolynomial {
+	typealias type = UInt8
+	static let poly = 19
+}
+struct PrimitivePolynomial285: PrimitivePolynomial {
+	typealias type = UInt8
+	static let poly = 285
+}
+struct PrimitivePolynomial16427: PrimitivePolynomial {
+	typealias type = UInt16
+	static let poly = 16427
+}
+struct PrimitivePolynomial69643: PrimitivePolynomial {
+	typealias type = UInt16
+	static let poly = 69643
+}
+struct PrimitivePolynomial4299161607: PrimitivePolynomial {
+	typealias type = UInt32
+	static let poly = 4299161607
+}
 print("exhaustive test for GF(2^4):")
-Testbench<GF8, PrimitivePolynomial19>.run()
+GF8.generateTables(19)
+Testbench<GF8, GaloisFieldReference<PrimitivePolynomial19>>.run()
 print("exhaustive test for GF(2^8):")
-Testbench<GF8, PrimitivePolynomial285>.run()
+GF8.generateTables(285)
+Testbench<GF8, GaloisFieldReference<PrimitivePolynomial285>>.run()
+GF8.destroyTables()
 print("exhaustive test for GF(2^14) (takes a minute to complete):")
-Testbench<GF16, PrimitivePolynomial16427>.run()
+GF16.generateTables(16427)
+Testbench<GF16, GaloisFieldReference<PrimitivePolynomial16427>>.run()
 print("exhaustive test for GF(2^16) (be patient, takes minutes to complete):")
-Testbench<GF16, PrimitivePolynomial69643>.run()
+GF16.generateTables(69643)
+Testbench<GF16, GaloisFieldReference<PrimitivePolynomial69643>>.run()
+GF16.destroyTables()
 
