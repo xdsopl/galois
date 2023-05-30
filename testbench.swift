@@ -13,7 +13,7 @@ protocol GaloisField: AdditiveArithmetic {
 	static func *=(left: inout Self, right: Self)
 	static func /(left: Self, right: Self) -> Self
 	static func /=(left: inout Self, right: Self)
-	func rcp() -> Self
+	var reciprocal: Self { get }
 	init(_ value: type)
 	init(_ value: Int)
 }
@@ -93,13 +93,13 @@ struct GF8: GaloisField, TableGeneratable {
 	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
-	func rcp() -> Self {
+	var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		return Self(Self.inv[Int(value)])
 	}
 	static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
-		return left * right.rcp()
+		return left * right.reciprocal
 	}
 	static func /=(left: inout Self, right: Self) {
 		left = left / right
@@ -148,7 +148,7 @@ struct GF16: GaloisField, TableGeneratable {
 	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
-	func rcp() -> Self {
+	var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
 			return self
@@ -203,7 +203,7 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 	static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
-	func rcp() -> Self {
+	var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
 			return self
@@ -230,7 +230,7 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		return Self(newt)
 	}
 	static func /(left: Self, right: Self) -> Self {
-		return left * right.rcp()
+		return left * right.reciprocal
 	}
 	static func /=(left: inout Self, right: Self) {
 		left = left / right
@@ -317,7 +317,7 @@ struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
 		printElapsedTime("div", divBegin, divEnd)
 		let rcpBegin = DispatchTime.now().uptimeNanoseconds
 		for j in 1 ... Int(PP.max) {
-			assert(GF(j).rcp().value == GFR(j).rcp().value)
+			assert(GF(j).reciprocal.value == GFR(j).reciprocal.value)
 		}
 		let rcpEnd = DispatchTime.now().uptimeNanoseconds
 		printElapsedTime("rcp", rcpBegin, rcpEnd)
