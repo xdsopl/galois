@@ -26,6 +26,9 @@ extension GaloisFieldProtocol {
 	static func +=(left: inout Self, right: Self) {
 		left = left + right
 	}
+	static func degree<T: FixedWidthInteger>(_ poly: T) -> Int {
+		return poly.bitWidth - 1 - poly.leadingZeroBitCount
+	}
 	var description: String {
 		return String(value)
 	}
@@ -43,15 +46,7 @@ struct GF8: GaloisFieldProtocol, TableGeneratable {
 	static var mul: [[type]] = []
 	static var inv: [type] = []
 	static func generateTables(_ poly: Int) {
-		let bits = {
-			var deg = -1
-			var tmp = $0
-			while tmp != 0 {
-				tmp >>= 1
-				deg += 1
-			}
-			return deg
-		}(poly)
+		let bits = degree(poly)
 		let size = 1 << bits
 		let max = size - 1
 		var log = [type](repeating: 0, count: size)
@@ -119,15 +114,7 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 	static var log: [type] = []
 	static var exp: [type] = []
 	static func generateTables(_ poly: Int) {
-		let bits = {
-			var deg = -1
-			var tmp = $0
-			while tmp != 0 {
-				tmp >>= 1
-				deg += 1
-			}
-			return deg
-		}(poly)
+		let bits = degree(poly)
 		let size = 1 << bits
 		max = size - 1
 		log = [type](repeating: 0, count: size)
@@ -223,15 +210,12 @@ struct GaloisField<P: PrimitivePolynomial>: GaloisFieldProtocol {
 		let poly = type(P.poly & Int(type.max))
 		var newr = poly, r = value
 		var newt = P.zero, t = P.one
-		let degree: (type) -> Int = {
-			return $0.bitWidth - 1 - $0.leadingZeroBitCount
-		}
-		var k = degree(r)
+		var k = Self.degree(r)
 		let j = P.bits - k
 		newr ^= r << j
 		newt ^= t << j
 		while newr != 1 {
-			let l = degree(newr)
+			let l = Self.degree(newr)
 			var j = l - k
 			if j < 0 {
 				j = -j
