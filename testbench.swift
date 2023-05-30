@@ -9,6 +9,7 @@ import Dispatch
 protocol GaloisField: AdditiveArithmetic {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	var value: type { get set }
+	static var count: Int { get }
 	static func *(left: Self, right: Self) -> Self
 	static func *=(left: inout Self, right: Self)
 	static func /(left: Self, right: Self) -> Self
@@ -46,20 +47,23 @@ struct GF8: GaloisField, TableGeneratable {
 	var value: type
 	static var mul: [[type]] = []
 	static var inv: [type] = []
+	static var count: Int {
+		return mul.count
+	}
 	static func generateTables(_ poly: Int) {
-		let bits = degree(poly)
-		let size = 1 << bits
+		let d = degree(poly)
+		let size = 1 << d
 		let max = size - 1
 		var log = [type](repeating: 0, count: size)
 		var exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
 		exp[max] = 0
 		var a = type(1)
-		let p = type(poly & Int(type.max))
+		let p = type(truncatingIfNeeded: poly)
 		for i in 0 ..< max {
 			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			if a >> (bits - 1) == 1 {
+			if a >> (d - 1) == 1 {
 				a <<= 1
 				a ^= p
 			} else {
@@ -114,20 +118,23 @@ struct GF16: GaloisField, TableGeneratable {
 	static var max = 1
 	static var log: [type] = []
 	static var exp: [type] = []
+	static var count: Int {
+		return log.count
+	}
 	static func generateTables(_ poly: Int) {
-		let bits = degree(poly)
-		let size = 1 << bits
+		let d = degree(poly)
+		let size = 1 << d
 		max = size - 1
 		log = [type](repeating: 0, count: size)
 		exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
 		exp[max] = 0
 		var a = type(1)
-		let p = type(poly & Int(type.max))
+		let p = type(truncatingIfNeeded: poly)
 		for i in 0 ..< max {
 			log[Int(a)] = type(i)
 			exp[i] = type(a)
-			if a >> (bits - 1) == 1 {
+			if a >> (d - 1) == 1 {
 				a <<= 1
 				a ^= p
 			} else {
@@ -171,15 +178,17 @@ struct GF16: GaloisField, TableGeneratable {
 }
 protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
-	static var bits: Int { get }
 	static var poly: Int { get }
 }
 struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 	typealias type = P.type
 	var value: type
+	static var count: Int {
+		return 1 << degree(P.poly)
+	}
 	static func *(left: Self, right: Self) -> Self {
 		var a = left.value, b = right.value, t = type(0)
-		let p = type(P.poly & Int(type.max))
+		let p = type(truncatingIfNeeded: P.poly), d = degree(P.poly)
 		if a < b {
 			swap(&a, &b)
 		}
@@ -187,7 +196,7 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 			if b & 1 == 1 {
 				t ^= a
 			}
-			if a >> (P.bits - 1) == 1 {
+			if a >> (d - 1) == 1 {
 				a <<= 1
 				a ^= p
 			} else {
@@ -205,11 +214,11 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		if value == 1 {
 			return self
 		}
-		let poly = type(P.poly & Int(type.max))
+		let poly = type(truncatingIfNeeded: P.poly)
 		var newr = poly, r = value
 		var newt = type(0), t = type(1)
 		var k = Self.degree(r)
-		let j = P.bits - k
+		let j = Self.degree(P.poly) - k
 		newr ^= r << j
 		newt ^= t << j
 		while newr != 1 {
@@ -238,27 +247,22 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 }
 struct PrimitivePolynomial19: PrimitivePolynomial {
 	typealias type = UInt8
-	static let bits = 4
 	static let poly = 19
 }
 struct PrimitivePolynomial285: PrimitivePolynomial {
 	typealias type = UInt8
-	static let bits = 8
 	static let poly = 285
 }
 struct PrimitivePolynomial16427: PrimitivePolynomial {
 	typealias type = UInt16
-	static let bits = 14
 	static let poly = 16427
 }
 struct PrimitivePolynomial69643: PrimitivePolynomial {
 	typealias type = UInt16
-	static let bits = 16
 	static let poly = 69643
 }
 struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	typealias type = UInt32
-	static let bits = 32
 	static let poly = 4299161607
 }
 struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
@@ -281,7 +285,8 @@ struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
 	}
 	static func run() {
 		GF.generateTables(PP.poly)
-		let size = 1 << PP.bits
+		assert(GF.count == GFR.count)
+		let size = GF.count
 		let mulBegin = DispatchTime.now().uptimeNanoseconds
 		for i in 0 ..< size {
 			for j in 0 ..< size {
