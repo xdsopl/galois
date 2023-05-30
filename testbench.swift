@@ -164,7 +164,7 @@ struct GF16: GaloisField, TableGeneratable {
 		if left.value == 0 || right.value == 1 {
 			return left
 		}
-		return Self(Self.exp[(Int(Self.log[Int(left.value)]) - Int(Self.log[Int(right.value)]) + max) % max])
+		return Self(exp[(Int(log[Int(left.value)]) - Int(log[Int(right.value)]) + max) % max])
 	}
 	init(_ value: type) {
 		self.value = value
