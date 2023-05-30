@@ -116,7 +116,6 @@ struct GF8: GaloisField, TableGeneratable {
 struct GF16: GaloisField, TableGeneratable {
 	typealias type = UInt16
 	var value: type
-	static var max = 1
 	static var log: [type] = []
 	static var exp: [type] = []
 	static var count: Int {
@@ -126,7 +125,7 @@ struct GF16: GaloisField, TableGeneratable {
 		let d = degree(poly)
 		assert(d <= 16)
 		let size = 1 << d
-		max = size - 1
+		let max = size - 1
 		log = [type](repeating: 0, count: size)
 		exp = [type](repeating: 0, count: size)
 		log[0] = type(max)
@@ -152,6 +151,7 @@ struct GF16: GaloisField, TableGeneratable {
 		if left.value == 0 || right.value == 0 {
 			return zero
 		}
+		let max = count - 1
 		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
 	var reciprocal: Self {
@@ -159,13 +159,15 @@ struct GF16: GaloisField, TableGeneratable {
 		if value == 1 {
 			return self
 		}
-		return Self(Self.exp[Self.max - Int(Self.log[Int(value)])])
+		let max = Self.count - 1
+		return Self(Self.exp[max - Int(Self.log[Int(value)])])
 	}
 	static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		if left.value == 0 || right.value == 1 {
 			return left
 		}
+		let max = count - 1
 		return Self(exp[(Int(log[Int(left.value)]) - Int(log[Int(right.value)]) + max) % max])
 	}
 	init(_ value: type) {
