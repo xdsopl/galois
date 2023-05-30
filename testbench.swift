@@ -297,7 +297,7 @@ struct Testbench<GF: GaloisFieldProtocol & TableGeneratable, PP: PrimitivePolyno
 		print("\(name): \(elapsed) \(unit)s")
 	}
 	static func run() {
-		GF.generateTables(Int(PP.poly))
+		GF.generateTables(PP.poly)
 		let mulBegin = DispatchTime.now().uptimeNanoseconds
 		for i in 0 ... Int(PP.max) {
 			for j in 0 ... Int(PP.max) {
