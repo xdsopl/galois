@@ -6,11 +6,9 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Dispatch
 
-protocol GaloisFieldProtocol: Equatable {
+protocol GaloisFieldProtocol: AdditiveArithmetic {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	var value: type { get set }
-	static func +(left: Self, right: Self) -> Self
-	static func +=(left: inout Self, right: Self)
 	static func *(left: Self, right: Self) -> Self
 	static func *=(left: inout Self, right: Self)
 	static func /(left: Self, right: Self) -> Self
@@ -20,11 +18,14 @@ protocol GaloisFieldProtocol: Equatable {
 	init(_ value: Int)
 }
 extension GaloisFieldProtocol {
+	static var zero: Self {
+		return Self(0)
+	}
 	static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
 	}
-	static func +=(left: inout Self, right: Self) {
-		left = left + right
+	static func -(left: Self, right: Self) -> Self {
+		return left + right
 	}
 	static func degree<T: FixedWidthInteger>(_ poly: T) -> Int {
 		return poly.bitWidth - 1 - poly.leadingZeroBitCount
@@ -140,7 +141,7 @@ struct GF16: GaloisFieldProtocol, TableGeneratable {
 	}
 	static func *(left: Self, right: Self) -> Self {
 		if left.value == 0 || right.value == 0 {
-			return Self(0)
+			return zero
 		}
 		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
