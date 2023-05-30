@@ -173,15 +173,12 @@ protocol PrimitivePolynomial {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	static var bits: Int { get }
 	static var poly: Int { get }
-	static var zero: type { get }
-	static var one: type { get }
-	static var max: type { get }
 }
 struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 	typealias type = P.type
 	var value: type
 	static func *(left: Self, right: Self) -> Self {
-		var a = left.value, b = right.value, t = P.zero
+		var a = left.value, b = right.value, t = type(0)
 		let p = type(P.poly & Int(type.max))
 		if a < b {
 			swap(&a, &b)
@@ -210,7 +207,7 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		}
 		let poly = type(P.poly & Int(type.max))
 		var newr = poly, r = value
-		var newt = P.zero, t = P.one
+		var newt = type(0), t = type(1)
 		var k = Self.degree(r)
 		let j = P.bits - k
 		newr ^= r << j
@@ -243,41 +240,26 @@ struct PrimitivePolynomial19: PrimitivePolynomial {
 	typealias type = UInt8
 	static let bits = 4
 	static let poly = 19
-	static let zero = type(0)
-	static let one = type(1)
-	static let max = type(15)
 }
 struct PrimitivePolynomial285: PrimitivePolynomial {
 	typealias type = UInt8
 	static let bits = 8
 	static let poly = 285
-	static let zero = type(0)
-	static let one = type(1)
-	static let max = type.max
 }
 struct PrimitivePolynomial16427: PrimitivePolynomial {
 	typealias type = UInt16
 	static let bits = 14
 	static let poly = 16427
-	static let zero = type(0)
-	static let one = type(1)
-	static let max = type(16383)
 }
 struct PrimitivePolynomial69643: PrimitivePolynomial {
 	typealias type = UInt16
 	static let bits = 16
 	static let poly = 69643
-	static let zero = type(0)
-	static let one = type(1)
-	static let max = type.max
 }
 struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	typealias type = UInt32
 	static let bits = 32
 	static let poly = 4299161607
-	static let zero = type(0)
-	static let one = type(1)
-	static let max = type.max
 }
 struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
 	typealias GFR = GaloisFieldReference<PP>
@@ -299,24 +281,25 @@ struct Testbench<GF: GaloisField & TableGeneratable, PP: PrimitivePolynomial> {
 	}
 	static func run() {
 		GF.generateTables(PP.poly)
+		let size = 1 << PP.bits
 		let mulBegin = DispatchTime.now().uptimeNanoseconds
-		for i in 0 ... Int(PP.max) {
-			for j in 0 ... Int(PP.max) {
+		for i in 0 ..< size {
+			for j in 0 ..< size {
 				assert((GF(i) * GF(j)).value == (GFR(i) * GFR(j)).value)
 			}
 		}
 		let mulEnd = DispatchTime.now().uptimeNanoseconds
 		printElapsedTime("mul", mulBegin, mulEnd)
 		let divBegin = DispatchTime.now().uptimeNanoseconds
-		for i in 0 ... Int(PP.max) {
-			for j in 1 ... Int(PP.max) {
+		for i in 0 ..< size {
+			for j in 1 ..< size {
 				assert((GF(i) / GF(j)).value == (GFR(i) / GFR(j)).value)
 			}
 		}
 		let divEnd = DispatchTime.now().uptimeNanoseconds
 		printElapsedTime("div", divBegin, divEnd)
 		let rcpBegin = DispatchTime.now().uptimeNanoseconds
-		for j in 1 ... Int(PP.max) {
+		for j in 1 ..< size {
 			assert(GF(j).reciprocal.value == GFR(j).reciprocal.value)
 		}
 		let rcpEnd = DispatchTime.now().uptimeNanoseconds
