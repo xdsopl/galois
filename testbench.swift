@@ -28,6 +28,12 @@ extension GaloisField {
 	static func -(left: Self, right: Self) -> Self {
 		return left + right
 	}
+	static func *=(left: inout Self, right: Self) {
+		left = left * right
+	}
+	static func /=(left: inout Self, right: Self) {
+		left = left / right
+	}
 	static func degree<T: FixedWidthInteger>(_ poly: T) -> Int {
 		return poly.bitWidth - 1 - poly.leadingZeroBitCount
 	}
@@ -94,9 +100,6 @@ struct GF8: GaloisField, TableGeneratable {
 	static func *(left: Self, right: Self) -> Self {
 		return Self(mul[Int(left.value)][Int(right.value)])
 	}
-	static func *=(left: inout Self, right: Self) {
-		left = left * right
-	}
 	var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		return Self(Self.inv[Int(value)])
@@ -104,9 +107,6 @@ struct GF8: GaloisField, TableGeneratable {
 	static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		return left * right.reciprocal
-	}
-	static func /=(left: inout Self, right: Self) {
-		left = left / right
 	}
 	init(_ value: type) {
 		self.value = value
@@ -152,9 +152,6 @@ struct GF16: GaloisField, TableGeneratable {
 		}
 		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
-	static func *=(left: inout Self, right: Self) {
-		left = left * right
-	}
 	var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
@@ -168,9 +165,6 @@ struct GF16: GaloisField, TableGeneratable {
 			return left
 		}
 		return Self(Self.exp[(Int(Self.log[Int(left.value)]) - Int(Self.log[Int(right.value)]) + max) % max])
-	}
-	static func /=(left: inout Self, right: Self) {
-		left = left / right
 	}
 	init(_ value: type) {
 		self.value = value
@@ -206,9 +200,6 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		}
 		return Self(t)
 	}
-	static func *=(left: inout Self, right: Self) {
-		left = left * right
-	}
 	var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
@@ -237,9 +228,6 @@ struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 	}
 	static func /(left: Self, right: Self) -> Self {
 		return left * right.reciprocal
-	}
-	static func /=(left: inout Self, right: Self) {
-		left = left / right
 	}
 	init(_ value: type) {
 		self.value = value
