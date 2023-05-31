@@ -17,27 +17,34 @@ public protocol GaloisField: AdditiveArithmetic {
 	init(_ value: Int)
 }
 extension GaloisField {
+	@_transparent
 	public static var zero: Self {
 		return Self(0)
 	}
+	@_transparent
 	public static func +(left: Self, right: Self) -> Self {
 		return Self(left.value ^ right.value)
 	}
+	@_transparent
 	public static func -(left: Self, right: Self) -> Self {
 		return left + right
 	}
+	@_transparent
 	public static func *=(left: inout Self, right: Self) {
 		left = left * right
 	}
+	@_transparent
 	public static func /=(left: inout Self, right: Self) {
 		left = left / right
 	}
+	@_transparent
 	public static func degree<T: FixedWidthInteger>(_ poly: T) -> Int {
 		return poly.bitWidth - 1 - poly.leadingZeroBitCount
 	}
 	public var description: String {
 		return String(value)
 	}
+	@_transparent
 	public init(_ value: Int) {
 		self.init(type(value))
 	}
@@ -51,6 +58,7 @@ public struct GF8: GaloisField, TableGeneratable {
 	public var value: type
 	public static var mul: [[type]] = []
 	public static var inv: [type] = []
+	@_transparent
 	public static var count: Int {
 		return mul.count
 	}
@@ -96,17 +104,21 @@ public struct GF8: GaloisField, TableGeneratable {
 		mul = []
 		inv = []
 	}
+	@_transparent
 	public static func *(left: Self, right: Self) -> Self {
 		return Self(mul[Int(left.value)][Int(right.value)])
 	}
+	@_transparent
 	public var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		return Self(Self.inv[Int(value)])
 	}
+	@_transparent
 	public static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		return left * right.reciprocal
 	}
+	@_transparent
 	public init(_ value: type) {
 		self.value = value
 	}
@@ -116,6 +128,7 @@ public struct GF16: GaloisField, TableGeneratable {
 	public var value: type
 	public static var log: [type] = []
 	public static var exp: [type] = []
+	@_transparent
 	public static var count: Int {
 		return log.count
 	}
@@ -145,6 +158,7 @@ public struct GF16: GaloisField, TableGeneratable {
 		log = []
 		exp = []
 	}
+	@_transparent
 	public static func *(left: Self, right: Self) -> Self {
 		if left.value == 0 || right.value == 0 {
 			return zero
@@ -152,6 +166,7 @@ public struct GF16: GaloisField, TableGeneratable {
 		let max = count - 1
 		return Self(exp[(Int(log[Int(left.value)]) + Int(log[Int(right.value)])) % max])
 	}
+	@_transparent
 	public var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
@@ -160,6 +175,7 @@ public struct GF16: GaloisField, TableGeneratable {
 		let max = Self.count - 1
 		return Self(Self.exp[max - Int(Self.log[Int(value)])])
 	}
+	@_transparent
 	public static func /(left: Self, right: Self) -> Self {
 		assert(right.value != 0, "Division by zero is undefined in Galois Field")
 		if left.value == 0 || right.value == 1 {
@@ -168,6 +184,7 @@ public struct GF16: GaloisField, TableGeneratable {
 		let max = count - 1
 		return Self(exp[(Int(log[Int(left.value)]) - Int(log[Int(right.value)]) + max) % max])
 	}
+	@_transparent
 	public init(_ value: type) {
 		self.value = value
 	}
@@ -179,9 +196,11 @@ public protocol PrimitivePolynomial {
 public struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 	public typealias type = P.type
 	public var value: type
+	@_transparent
 	public static var count: Int {
 		return 1 << degree(P.poly)
 	}
+	@_transparent
 	public static func *(left: Self, right: Self) -> Self {
 		var a = left.value, b = right.value, t = type(0)
 		let p = type(truncatingIfNeeded: P.poly), d = degree(P.poly)
@@ -202,6 +221,7 @@ public struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		}
 		return Self(t)
 	}
+	@_transparent
 	public var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		if value == 1 {
@@ -228,9 +248,11 @@ public struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		}
 		return Self(newt)
 	}
+	@_transparent
 	public static func /(left: Self, right: Self) -> Self {
 		return left * right.reciprocal
 	}
+	@_transparent
 	public init(_ value: type) {
 		self.value = value
 	}
