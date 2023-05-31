@@ -3,4 +3,5 @@
 *.swiftdoc
 *.swiftmodule
 *.swiftsourceinfo
+example
 testbench

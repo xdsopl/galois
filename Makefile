@@ -5,14 +5,18 @@ FLAGS = -assert-config Debug -Ounchecked
 testbench: testbench.swift libGalois.a
 	$(SWIFT) $(FLAGS) -I. -L. -lGalois -o $@ $<
 
+example: example.swift libGalois.a
+	$(SWIFT) $(FLAGS) -I. -L. -lGalois -o $@ $<
+
 libGalois.a: Galois/*.swift
 	$(SWIFT) $(FLAGS) -static -emit-library -emit-module -module-name Galois -o $@ $^
 
 .PHONY: test
-test: testbench
+test: example testbench
+	./example
 	./testbench
 
 .PHONY: clean
 clean:
-	rm -f testbench *.swiftdoc *.swiftmodule *.swiftsourceinfo *.a
+	rm -f example testbench *.swiftdoc *.swiftmodule *.swiftsourceinfo *.a
 
