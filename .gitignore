@@ -1,2 +1,6 @@
 .*.swp
+*.a
+*.swiftdoc
+*.swiftmodule
+*.swiftsourceinfo
 testbench

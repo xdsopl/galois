@@ -2,8 +2,11 @@
 SWIFT = swiftc
 FLAGS = -assert-config Debug -Ounchecked
 
-testbench: testbench.swift
-	$(SWIFT) $(FLAGS) $< -o $@
+testbench: testbench.swift libGalois.a
+	$(SWIFT) $(FLAGS) -I. -L. -lGalois -o $@ $<
+
+libGalois.a: galois.swift
+	$(SWIFT) $(FLAGS) -static -emit-library -emit-module -module-name Galois -o $@ $^
 
 .PHONY: test
 test: testbench
@@ -11,5 +14,5 @@ test: testbench
 
 .PHONY: clean
 clean:
-	rm -f testbench
+	rm -f testbench *.swiftdoc *.swiftmodule *.swiftsourceinfo *.a
 
