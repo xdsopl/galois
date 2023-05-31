@@ -7,7 +7,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 import Dispatch
 import Galois
 
-struct Testbench<GF: GaloisField & TableGeneratable, GFR: GaloisField> {
+struct Testbench<GF: GaloisField, GFR: GaloisField> {
 	static func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	{
 		var elapsed = end - begin
