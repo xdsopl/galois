@@ -47,9 +47,6 @@ extension GaloisField {
 	public static func degree<T: FixedWidthInteger>(_ poly: T) -> Int {
 		return poly.bitWidth - 1 - poly.leadingZeroBitCount
 	}
-	public var description: String {
-		return String(value)
-	}
 	@_transparent
 	public init(_ value: Int) {
 		self.init(type(value))
