@@ -7,6 +7,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 public protocol GaloisField: AdditiveArithmetic {
 	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
 	var value: type { get set }
+	static var one: Self { get }
 	static var count: Int { get }
 	static func *(left: Self, right: Self) -> Self
 	static func *=(left: inout Self, right: Self)
@@ -21,6 +22,10 @@ extension GaloisField {
 	@_transparent
 	public static var zero: Self {
 		return Self(0)
+	}
+	@_transparent
+	public static var one: Self {
+		return Self(1)
 	}
 	@_transparent
 	public static func +(left: Self, right: Self) -> Self {
