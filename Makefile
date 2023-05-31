@@ -5,7 +5,7 @@ FLAGS = -assert-config Debug -Ounchecked
 testbench: testbench.swift libGalois.a
 	$(SWIFT) $(FLAGS) -I. -L. -lGalois -o $@ $<
 
-libGalois.a: galois.swift
+libGalois.a: Galois/*.swift
 	$(SWIFT) $(FLAGS) -static -emit-library -emit-module -module-name Galois -o $@ $^
 
 .PHONY: test
