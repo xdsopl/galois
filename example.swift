@@ -24,6 +24,15 @@ func lagrangeInterpolation<T: GaloisField>(x: [T], y: [T], p: T) -> T {
 GF8.generateTables(285)
 typealias GF = GF8
 
+// GF16.generateTables(16427)
+// typealias GF = GF16
+
+struct PrimitivePolynomial4299161607: PrimitivePolynomial {
+	typealias type = UInt32
+	static let poly = 4299161607
+}
+// typealias GF = GaloisFieldReference<PrimitivePolynomial4299161607>
+
 let K = 7, N = 29
 
 // create message with K symbols
@@ -62,7 +71,6 @@ for i in 0 ..< K {
 	recv_mesg[i] = lagrangeInterpolation(x: recv_pos, y: recv_code, p: GF(i))
 }
 print(recv_mesg.reduce("recv:") { $0 + " \($1.value)" })
-
 
 GF.destroyTables()
 
