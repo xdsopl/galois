@@ -6,14 +6,14 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 
 import Galois
 
-func lagrangeInterpolation<T: GaloisField>(x: [T], y: [T], p: T) -> T {
+func lagrangeInterpolation<T: GaloisField>(nodes: [(x: T, y: T)], point: T) -> T {
 	var sum = T.zero
-	for j in 0 ..< y.count {
-		var num = y[j], den = T.one
-		for m in 0 ..< x.count {
+	for j in 0 ..< nodes.count {
+		var num = nodes[j].y, den = T.one
+		for m in 0 ..< nodes.count {
 			if m != j {
-				num *= p - x[m]
-				den *= x[j] - x[m]
+				num *= point - nodes[m].x
+				den *= nodes[j].x - nodes[m].x
 			}
 		}
 		sum += num / den
@@ -36,39 +36,27 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 let K = 7, N = 29
 
 // create message with K symbols
-var orig_mesg = [GF](repeating: GF.zero, count: K)
+var orig_mesg = [(x: GF, y: GF)](repeating: (GF.zero, GF.zero), count: K)
 for i in 0 ..< K {
-	orig_mesg[i] = GF(Int.random(in: 0 ..< GF.count))
+	orig_mesg[i] = (GF(i), GF(Int.random(in: 0 ..< GF.count)))
 }
-print(orig_mesg.reduce("mesg:") { $0 + " \($1.value)" })
-
-// original positions of each message symbol
-var orig_pos = [GF](repeating: GF.zero, count: N)
-for i in 0 ..< N {
-	orig_pos[i] = GF(i)
-}
+print(orig_mesg.reduce("mesg:") { $0 + " \($1.y.value)" })
 
 // generate N - K redundant symbols from message to form code word
-var orig_code = [GF](repeating: GF.zero, count: N)
+var orig_code = [(x: GF, y: GF)](repeating: (GF.zero, GF.zero), count: N)
 for i in 0 ..< N {
-	orig_code[i] = lagrangeInterpolation(x: Array(orig_pos.prefix(K)), y: orig_mesg, p: GF(i))
+	orig_code[i] = (GF(i), lagrangeInterpolation(nodes: orig_mesg, point: GF(i)))
 }
-print(orig_code.reduce("code:") { $0 + " \($1.value)" })
+print(orig_code.reduce("code:") { $0 + " \($1.y.value)" })
 
-// randomly choose K positions from code word to simulate erasures
-let recv_pos = Array(orig_pos.shuffled().prefix(K))
-print(recv_pos.reduce("rpos:") { $0 + " \($1.value)" })
-
-// create received array from above K random positions of code word
-var recv_code = [GF](repeating: GF.zero, count: K)
-for i in 0 ..< K {
-	recv_code[i] = orig_code[Int(recv_pos[i].value)]
-}
+// randomly choose K symbols from code word to simulate erasures
+let recv_code = Array(orig_code.shuffled().prefix(K))
+print(recv_code.reduce("rpos:") { $0 + " \($1.x.value)" })
 
 // decode message from K received symbols
 var recv_mesg = [GF](repeating: GF.zero, count: K)
 for i in 0 ..< K {
-	recv_mesg[i] = lagrangeInterpolation(x: recv_pos, y: recv_code, p: GF(i))
+	recv_mesg[i] = lagrangeInterpolation(nodes: recv_code, point: GF(i))
 }
 print(recv_mesg.reduce("recv:") { $0 + " \($1.value)" })
 
