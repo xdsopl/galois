@@ -60,5 +60,10 @@ for i in 0 ..< K {
 }
 print(recv_mesg.reduce("recv:") { $0 + " \($1.value)" })
 
+// check that the decoded message is indded the original message
+for i in 0 ..< K {
+	assert(orig_mesg[i].y == recv_mesg[i])
+}
+
 GF.destroyTables()
 
