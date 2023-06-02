@@ -2,6 +2,9 @@
 SWIFT = swiftc
 FLAGS = -assert-config Debug -Ounchecked
 
+.PHONY: all
+all: testbench example
+
 testbench: testbench.swift libGalois.a
 	$(SWIFT) $(FLAGS) -I. -L. -lGalois -o $@ $<
 
