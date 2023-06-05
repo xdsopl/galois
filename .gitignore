@@ -1,6 +1,7 @@
 .DS_Store
 .*.swp
 *.a
+*.abi.json
 *.swiftdoc
 *.swiftmodule
 *.swiftsourceinfo

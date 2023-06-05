@@ -21,5 +21,5 @@ test: example testbench
 
 .PHONY: clean
 clean:
-	rm -f example testbench *.swiftdoc *.swiftmodule *.swiftsourceinfo *.a
+	rm -f example testbench *.abi.json *.swiftdoc *.swiftmodule *.swiftsourceinfo *.a
 
