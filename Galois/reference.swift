@@ -12,6 +12,14 @@ public struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		return 1 << degree(P.poly)
 	}
 	@_transparent
+	public static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
+	}
+	@_transparent
+	public static func -(left: Self, right: Self) -> Self {
+		return left + right
+	}
+	@_transparent
 	public static func *(left: Self, right: Self) -> Self {
 		var a = left.value, b = right.value, t = type(0)
 		let p = type(truncatingIfNeeded: P.poly), d = degree(P.poly)
@@ -58,6 +66,11 @@ public struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 			newt ^= t << j
 		}
 		return Self(newt)
+	}
+	@_transparent
+	public static func /(left: Self, right: Self) -> Self {
+		assert(right.value != 0, "Division by zero is undefined in Galois Field")
+		return left * right.reciprocal
 	}
 	@_transparent
 	public init(_ value: type) {

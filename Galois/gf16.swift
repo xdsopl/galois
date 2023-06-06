@@ -40,6 +40,14 @@ public struct GF16: GaloisField, TableGeneratable {
 		exp = []
 	}
 	@_transparent
+	public static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
+	}
+	@_transparent
+	public static func -(left: Self, right: Self) -> Self {
+		return left + right
+	}
+	@_transparent
 	public static func *(left: Self, right: Self) -> Self {
 		if left.value == 0 || right.value == 0 {
 			return zero

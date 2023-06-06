@@ -28,21 +28,8 @@ extension GaloisField {
 		return Self(1)
 	}
 	@_transparent
-	public static func +(left: Self, right: Self) -> Self {
-		return Self(left.value ^ right.value)
-	}
-	@_transparent
-	public static func -(left: Self, right: Self) -> Self {
-		return left + right
-	}
-	@_transparent
 	public static func *=(left: inout Self, right: Self) {
 		left = left * right
-	}
-	@_transparent
-	public static func /(left: Self, right: Self) -> Self {
-		assert(right.value != 0, "Division by zero is undefined in Galois Field")
-		return left * right.reciprocal
 	}
 	@_transparent
 	public static func /=(left: inout Self, right: Self) {

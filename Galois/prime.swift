@@ -43,6 +43,11 @@ public struct PrimeField<P: PrimeNumber>: GaloisField {
 		return Self(t)
 	}
 	@_transparent
+	public static func /(left: Self, right: Self) -> Self {
+		assert(right.value != 0, "Division by zero is undefined in Galois Field")
+		return left * right.reciprocal
+	}
+	@_transparent
 	public init(_ value: type) {
 		self.value = value
 	}

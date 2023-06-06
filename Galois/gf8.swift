@@ -56,6 +56,14 @@ public struct GF8: GaloisField, TableGeneratable {
 		inv = []
 	}
 	@_transparent
+	public static func +(left: Self, right: Self) -> Self {
+		return Self(left.value ^ right.value)
+	}
+	@_transparent
+	public static func -(left: Self, right: Self) -> Self {
+		return left + right
+	}
+	@_transparent
 	public static func *(left: Self, right: Self) -> Self {
 		return Self(mul[Int(left.value)][Int(right.value)])
 	}
@@ -63,6 +71,11 @@ public struct GF8: GaloisField, TableGeneratable {
 	public var reciprocal: Self {
 		assert(value != 0, "Reciprocal of zero is undefined in Galois Field")
 		return Self(Self.inv[Int(value)])
+	}
+	@_transparent
+	public static func /(left: Self, right: Self) -> Self {
+		assert(right.value != 0, "Division by zero is undefined in Galois Field")
+		return left * right.reciprocal
 	}
 	@_transparent
 	public init(_ value: type) {
