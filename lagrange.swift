@@ -1,5 +1,5 @@
 /*
-Example use of Galois field arithmetic
+Lagrange interpolation based erasure coding example
 
 Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 */
