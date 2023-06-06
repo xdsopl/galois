@@ -26,8 +26,8 @@ func cauchyInverse<T: GaloisField>(_ rows: [T], _ i: Int, _ j: Int, _ n: Int) ->
 	return prod_xy / ((rows[j] + col_i) * prod_x * prod_y)
 }
 
-GF8.generateTables(285)
-typealias GF = GF8
+// GF8.generateTables(285)
+// typealias GF = GF8
 
 // GF16.generateTables(16427)
 // typealias GF = GF16
@@ -37,6 +37,17 @@ struct PrimitivePolynomial4299161607: PrimitivePolynomial {
 	static let poly = 4299161607
 }
 // typealias GF = GaloisFieldReference<PrimitivePolynomial4299161607>
+
+struct PrimeNumber65537: PrimeNumber {
+	typealias type = UInt32
+	static let number = 65537
+}
+struct PrimeNumber257: PrimeNumber {
+	typealias type = UInt16
+	static let number = 257
+}
+// typealias GF = PrimeField<PrimeNumber65537>
+typealias GF = PrimeField<PrimeNumber257>
 
 let K = 7, N = 29
 
