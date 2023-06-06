@@ -7,14 +7,14 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 import Galois
 
 func cauchyMatrix<T: GaloisField>(_ i: Int, _ j: Int) -> T {
-	let row = T(i), col = T(T.count - 1 - j)
+	let row = T(i), col = T(j)
 	return (row + col).reciprocal
 }
 func cauchyInverse<T: GaloisField>(_ rows: [T], _ i: Int, _ j: Int, _ n: Int) -> T {
-	let col_i = T(T.count - 1 - i)
+	let col_i = T(i)
 	var prod_xy = T.one, prod_x = T.one, prod_y = T.one
 	for k in 0 ..< n {
-		let col_k = T(T.count - 1 - k)
+		let col_k = T(k)
 		prod_xy *= (rows[j] + col_k) * (rows[k] + col_i)
 		if k != j {
 			prod_x *= rows[j] - rows[k]
@@ -61,10 +61,10 @@ print(orig_mesg.reduce("mesg:") { $0 + " \($1.value)" })
 // randomly choose K rows to simulate erasures
 var orig_rows = [GF](repeating: GF.zero, count: N)
 for i in 0 ..< N {
-	orig_rows[i] = GF(i)
+	orig_rows[i] = GF(K + i)
 }
 let recv_rows = Array(orig_rows.shuffled().prefix(K))
-print(recv_rows.reduce("rpos:") { $0 + " \($1.value)" })
+print(recv_rows.reduce("rpos:") { $0 + " \(Int($1.value) - K)" })
 
 // generate only K symbols from message to form received code word
 var recv_code = [GF](repeating: GF.zero, count: K)
