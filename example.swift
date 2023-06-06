@@ -65,5 +65,6 @@ for i in 0 ..< K {
 	assert(orig_mesg[i].y == recv_mesg[i])
 }
 
-GF.destroyTables()
+// GF8.destroyTables()
+// GF16.destroyTables()
 
