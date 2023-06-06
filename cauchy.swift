@@ -17,10 +17,10 @@ func cauchyInverse<T: GaloisField>(_ rows: [T], _ i: Int, _ j: Int, _ n: Int) ->
 		let col_k = T(T.count - 1 - k)
 		prod_xy *= (rows[j] + col_k) * (rows[k] + col_i)
 		if k != j {
-			prod_x *= rows[j] + rows[k]
+			prod_x *= rows[j] - rows[k]
 		}
 		if k != i {
-			prod_y *= col_i + col_k
+			prod_y *= col_i - col_k
 		}
 	}
 	return prod_xy / ((rows[j] + col_i) * prod_x * prod_y)
