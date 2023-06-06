@@ -60,10 +60,6 @@ public struct GaloisFieldReference<P: PrimitivePolynomial>: GaloisField {
 		return Self(newt)
 	}
 	@_transparent
-	public static func /(left: Self, right: Self) -> Self {
-		return left * right.reciprocal
-	}
-	@_transparent
 	public init(_ value: type) {
 		self.value = value
 	}
