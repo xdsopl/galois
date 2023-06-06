@@ -7,6 +7,45 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 import Dispatch
 import Galois
 
+struct PrimeNumber65537: PrimeNumber {
+	typealias type = UInt32
+	static let number = 65537
+}
+struct PrimeNumber257: PrimeNumber {
+	typealias type = UInt16
+	static let number = 257
+}
+// typealias PF = PrimeField<PrimeNumber65537>
+typealias PF = PrimeField<PrimeNumber257>
+
+print("exhaustive test for GF(\(PF.count)) ..", terminator: "")
+for i in 0 ..< PF.count {
+	assert(PF(i) - PF(i) == PF.zero)
+}
+for i in 1 ..< PF.count {
+	assert(PF(i) * PF(i).reciprocal == PF.one)
+}
+for i in 0 ..< PF.count {
+	for j in 1 ..< PF.count {
+		assert(PF(i) / PF(j) == PF(i) * PF(j).reciprocal)
+	}
+}
+for i in 0 ..< PF.count {
+	for j in 0 ..< PF.count {
+		for k in 0 ..< PF.count {
+			assert(PF(i) * (PF(j) + PF(k)) == PF(i) * PF(j) + PF(i) * PF(k))
+		}
+	}
+}
+for i in 0 ..< PF.count {
+	for j in 0 ..< PF.count {
+		for k in 1 ..< PF.count {
+			assert((PF(i) + PF(j)) / PF(k) == PF(i) / PF(k) + PF(j) / PF(k))
+		}
+	}
+}
+print(" done")
+
 struct Testbench<GF: GaloisField, GFR: GaloisField> {
 	static func printElapsedTime(_ name: String, _ begin: UInt64, _ end: UInt64)
 	{

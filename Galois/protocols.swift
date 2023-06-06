@@ -68,3 +68,8 @@ public protocol PrimitivePolynomial {
 	static var poly: Int { get }
 }
 
+public protocol PrimeNumber {
+	associatedtype type where type: FixedWidthInteger, type: UnsignedInteger
+	static var number: Int { get }
+}
+
