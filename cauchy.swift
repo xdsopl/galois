@@ -61,6 +61,7 @@ print(orig_mesg.reduce("mesg:") { $0 + " \($1.value)" })
 // randomly choose K rows to simulate erasures
 var orig_rows = [GF](repeating: GF.zero, count: N)
 for i in 0 ..< N {
+	// numbers used for rows and columns need to be distinct
 	orig_rows[i] = GF(K + i)
 }
 let recv_rows = Array(orig_rows.shuffled().prefix(K))
@@ -84,7 +85,7 @@ for i in 0 ..< K {
 }
 print(recv_mesg.reduce("recv:") { $0 + " \($1.value)" })
 
-// check that the decoded message is indded the original message
+// check that the decoded message is indeed the original message
 for i in 0 ..< K {
 	assert(orig_mesg[i] == recv_mesg[i])
 }
