@@ -75,6 +75,7 @@ public struct GF16: GaloisField, TableGeneratable {
 	}
 	@_transparent
 	public init(_ value: type) {
+		assert(value < Self.count, "Value out of range")
 		self.value = value
 	}
 }

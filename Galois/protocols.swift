@@ -41,6 +41,7 @@ extension GaloisField {
 	}
 	@_transparent
 	public init(_ value: Int) {
+		assert(value >= 0 && value < Self.count, "Value out of range")
 		self.init(type(value))
 	}
 }
